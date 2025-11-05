@@ -285,6 +285,67 @@
 </style
     
         */
+        /* Numpad और Side Buttons का कंटेनर 
+.side-btns {
+    width: 25%; /* यह 25% साइज़ बरकरार रखेगा 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+}
+
+/* 1. Enter बटन को अलग से स्टाइल करें (पहला बटन) 
+.side-btns button:first-child {
+    /* Base style 
+    padding: 25px 10px; /* Vertical padding बढ़ाकर बटन को लंबा करें 
+    font-size: 16px; 
+    border: none;
+    background: var(--secondary-color);
+    color: black;
+    font-weight: bold;
+    border-radius: 25px; /* Border-radius बढ़ाकर ओवल शेप दें 
+    cursor: pointer;
+    
+    /* Text Adjustment: सुनिश्चित करें कि टेक्स्ट सिंगल लाइन में आए 
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 2. बाकी बटन को सामान्य रखें, लेकिन साइज़ समान रखें 
+.side-btns button {
+    padding: 10px; 
+    font-size: 14px;
+    border: none;
+    background: var(--secondary-color);
+    color: black;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* 3. दूसरे बटनों के लिए: first-child के बाद के बटनों पर default style लागू करें 
+.side-btns button:not(:first-child) {
+    /* सुनिश्चित करें कि बाकी बटनों पर सामान्य पैडिंग बनी रहे 
+    padding: 10px; 
+}
+        */
+        .side-btns button:first-child {
+    /* Base style */
+    padding: 25px 10px; /* Vertical padding बढ़ाकर बटन को लंबा करें */
+    font-size: 16px; 
+    border: none;
+    background: var(--secondary-color);
+    color: black;
+    font-weight: bold;
+    border-radius: 25px; /* Border-radius बढ़ाकर ओवल शेप दें */
+    cursor: pointer;
+    
+    /* Text Adjustment: सुनिश्चित करें कि टेक्स्ट सिंगल लाइन में आए */
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
