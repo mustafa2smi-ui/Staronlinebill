@@ -26,6 +26,7 @@
             background: var(--dark-bg);
             color: var(--text-color);
             padding-bottom: var(--footer-height); 
+            font-size: 14px;
         }
         /* --- General Styling --- */
         .main-header {
@@ -95,8 +96,8 @@
             /* 4) IMPORTANT: Removed max-height so that html2canvas captures full length */
             /* max-height: 250px; <-- REMOVED */ 
             overflow-y: auto; /* Added to retain scrollability in normal view */
-            height: 250px; /* SETTING A FIXED HEIGHT FOR NORMAL VIEW */
-            font-size: 14px;
+            height: 180px; /* SETTING A FIXED HEIGHT FOR NORMAL VIEW */
+            font-size: 12px;
             background: var(--light-bg);
         }
         .row {
@@ -213,6 +214,66 @@
             border-top: 1px solid #444;
             z-index: 1000;
         }
+        /*
+        <style
+    /* ... (CSS Variables and Header/Menu styles remain the same) ... 
+    
+    /* 1. General Font Size Reduction 
+    body {
+        /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        font-size: 14px; /* Reduced base font size from 16px 
+        /* ... */
+    }
+
+    /* 2. Reduced Padding and Height for Inputs 
+    .top-inputs {
+        padding: 8px; /* Reduced padding from 10px 
+        /* ... 
+    }
+    input[type="text"], input[type="number"] {
+        padding: 8px 10px; /* Reduced vertical padding from 10px 
+        font-size: 14px; /* Ensured input font matches body 
+        /* ... */
+    }
+
+    /* 3. Item List (Table) Height Reduction 
+    #itemList {
+        /* height: 250px; <-- OLD HEIGHT 
+        height: 180px; /* NEW HEIGHT: Reduced height for table area 
+        overflow-y: auto; 
+        font-size: 13px; /* Reduced font size in table rows 
+        /* ... 
+    }
+    .row {
+        padding: 6px 5px; /* Reduced padding in table rows 
+    }
+    .total-box {
+        padding: 8px 10px; /* Reduced padding 
+        font-size: 1em; /* Kept font size slightly larger for total */
+    }
+
+    /* 4. Numpad Size Reduction 
+    .numpad button {
+        padding: 15px; /* Reduced padding from 20px 
+        font-size: 18px; /* Reduced font size from 20px 
+    }
+
+    /* 5. Side Buttons Size Reduction 
+    .side-btns button {
+        padding: 10px; /* Reduced padding from 15px 
+        font-size: 14px; /* Reduced font size from 16px 
+    }
+
+    /* 6. Bottom Buttons Size Reduction 
+    .bottom button {
+        padding: 10px 15px; /* Reduced padding from 12px 20px 
+        font-size: 14px;
+    }
+    
+    /* ... (Footer styles remain the same) ... 
+</style
+    
+        */
     </style>
 </head>
 <body>
@@ -233,12 +294,35 @@
         <div id="currentDate"></div>
     </div>
 </div>
+// New
+    <div class="top-inputs">
+    <input type="text" id="custName" placeholder="Customer Name (Optional)" maxlength="15">
+    
+    <input type="text" id="custContact" placeholder="Contact Number (Optional)" 
+           maxlength="10" inputmode="numeric" pattern="\d{0,10}">
+</div>
+<!--
+<div class="top-inputs">
+    <input type="text" id="custName" placeholder="Customer Name (Optional)" maxlength="15">
+    
+    <input type="text" id="custContact" placeholder="Contact Number (Optional)" 
+           maxlength="10" inputmode="numeric" pattern="\d{0,10}">
+</div>
+
+<div class="top-inputs">
+    <div class="input-vertical">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" maxlength="15">
+        
+        <input type="number" id="qty" placeholder="Qty" readonly>
+        <input type="number" id="rate" placeholder="Rate" readonly>
+    </div>
+</div>
 
 <div class="top-inputs">
     <input type="text" id="custName" placeholder="Customer Name (Optional)">
     <input type="text" id="custContact" placeholder="Contact Number (Optional)">
 </div>
-
+-->
 <div id="billArea">
     <div class="header">
         <div>SR</div>
@@ -256,7 +340,7 @@
 
 <div class="top-inputs">
     <div class="input-vertical">
-        <input type="text" id="itemName" placeholder="Item Name (Optional)">
+                <input type="text" id="itemName" placeholder="Item Name (Optional)" maxlength="15">
         <input type="number" id="qty" placeholder="Qty" readonly>
         <input type="number" id="rate" placeholder="Rate" readonly>
     </div>
@@ -314,6 +398,15 @@
     const custContactInput = document.getElementById("custContact");
     const enterBtn = document.querySelector('.side-btns button:first-child');
     const itemListDiv = document.getElementById("itemList"); // Added for scroll fix
+// XSS Protection Function: HTML Special characters को एस्केप करता है।
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+}
 
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
 
@@ -377,13 +470,22 @@
             let row = document.createElement("div");
             row.className = "row" + (selectedIndex === index ? " selected" : "");
             row.onclick = () => selectRow(index);
-            row.innerHTML = `
+            /*row.innerHTML = `
                 <div>${item.sr}</div>
                 <div>${item.name}</div>
                 <div>${item.qty}</div>
                 <div>${item.rate.toFixed(2)}</div>
                 <div>₹${item.total.toFixed(2)}</div>
             `;
+            */
+            // NEW SECURE CODE
+row.innerHTML = `
+    <div>${item.sr}</div>
+    <div>${escapeHtml(item.name)}</div>  <div>${item.qty}</div>
+    <div>${item.rate.toFixed(2)}</div>
+    <div>₹${item.total.toFixed(2)}</div>
+`;
+            
             list.appendChild(row);
         });
         document.getElementById("totalQty").innerText = totalQty;
