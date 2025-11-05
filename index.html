@@ -354,7 +354,7 @@
 
 <div class="menu-btn" onclick="openNav()">☰</div>
 <div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href= class="closebtn" onclick="closeNav()">×</a>
     <a href="#">🏠 Home</a>
     <a href="#">ℹ️ About Us</a>
     <a href="#">🔒 Privacy Policy</a>
@@ -761,7 +761,23 @@ row.innerHTML = `
     function openNav() {
         document.getElementById("mySidebar").style.width = "250px";
     }
+function closeNav() {
+    document.getElementById("mySidebar").style.width = "0";
+}
 
+// नया लॉजिक: कहीं भी क्लिक करने पर साइडबार बंद करना
+window.addEventListener('click', function(e){
+    const sidebar = document.getElementById('mySidebar');
+    const menuBtn = document.querySelector('.menu-btn');
+    
+    // यदि क्लिक sidevar या menu बटन पर नहीं है, तो उसे बंद कर दें
+    if (sidebar.style.width === "250px" && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+        closeNav();
+    }
+});
+
+// ... (बाकी सारा JavaScript लॉजिक जैसे loadFromLocal और PWA रजिस्ट्रेशन)
+    
     // Service Worker Registration for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
