@@ -375,10 +375,10 @@
         </div>
     </div>
     <div class="side-btns" style="width: 25%;">
-        <button type="button" onclick="saveItem()">Enter ×</button>
-        <button onclick="clearInput()">Clear ✖️</button>
+        <button type="button" onclick="saveItem()">Enter <br> ×</button>
+      <!--  <button onclick="clearInput()">Clear ✖️</button>-->
         <button onclick="deleteItem()" id="delBtn" disabled>Delete 🗑️</button>
-        <button onclick="clearTable()">🧹 Clear All</button>
+        <button onclick="clearTable()">🧹Clear <br> All</button>
     </div>
 </div>
 
@@ -508,7 +508,7 @@ row.innerHTML = `
             list.scrollTop = list.scrollHeight;
         }
     }
-
+/*
     function clearInput() {
         qtyInput.value = "";
         rateInput.value = "";
@@ -519,7 +519,7 @@ row.innerHTML = `
         enterBtn.innerText = "Enter ×";
         renderTable(); 
     }
-
+*/
     function clearTable() {
         if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
             items = [];
