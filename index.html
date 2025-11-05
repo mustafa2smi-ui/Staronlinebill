@@ -17,18 +17,16 @@
             --light-bg: #2b2b40;
             --text-color: #ffffff;
             --highlight-color: #ffc107; /* Orange/Yellow highlight */
-            --footer-height: 50px; /* New: Footer height */
+            --footer-height: 50px; 
         }
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--dark-bg);
             color: var(--text-color);
-            /* New: Body padding to accommodate static footer */
             padding-bottom: var(--footer-height); 
         }
         /* --- General Styling --- */
-        /* ... (Previous general styles remain largely the same, only colors updated) ... */
         .main-header {
             background: var(--primary-color);
             padding: 15px 10px;
@@ -180,7 +178,7 @@
         }
         .bottom {
             display: flex;
-            justify-content: space-around; /* Changed to space-around for two buttons */
+            justify-content: space-around;
             padding: 15px 10px;
             background: #333;
         }
@@ -198,7 +196,6 @@
             flex-direction: column;
             gap: 10px;
         }
-        /* 2) Static Footer */
         .app-footer {
             position: fixed;
             bottom: 0;
@@ -229,7 +226,7 @@
 <div class="main-header">
     <div class="app-title">Star Digital Online Bill Create Webapp Service</div>
     <div class="header-info">
-        <div>App Version 1.1</div>
+        <div>App Version 1.2</div>
         <div id="currentDate"></div>
     </div>
 </div>
@@ -297,6 +294,11 @@
 </div>
 
 <script>
+    // --- Configuration ---
+    const APP_WEBSITE_URL = window.location.href; // 2) Auto fetch current website URL
+    const CUSTOM_SHARE_MSG = "\n\n⭐️ Aap bhi apne Customer ko digital bill banaye bilkul free me! Try it now: "; 
+    
+    // --- Variables and Elements ---
     let current = 'qty';
     let sr = 1;
     let items = [];
@@ -338,14 +340,13 @@
         let rate = parseFloat(rateInput.value) || 0;
         let name = itemNameInput.value || "-";
 
-        // Validation only for Qty OR Rate, let saveItem function handle if one is 0
-        if (selectedIndex < 0 && (qty <= 0 && rate <= 0)) {
-             alert("कृपया मात्रा (Qty) और/या दर (Rate) दर्ज करें।");
-             current = 'qty';
+        // Fix: Prevent saving if Qty or Rate is zero in non-edit mode
+        if (selectedIndex < 0 && (qty <= 0 || rate <= 0)) {
+             alert("कृपया मात्रा (Qty) और दर (Rate) दोनों में मान (value) दर्ज करें।");
+             current = (qty <= 0) ? 'qty' : 'rate';
              highlight();
              return;
         }
-
 
         let total = qty * rate;
 
@@ -362,7 +363,6 @@
     }
 
     function renderTable() {
-        // ... (renderTable logic remains the same) ...
         const list = document.getElementById("itemList");
         list.innerHTML = "";
         let totalQty = 0, totalAmt = 0;
@@ -435,19 +435,16 @@
         }
     }
 
-    // 1) Save As Image (Download) Function
     function downloadImage() {
         const bill = document.getElementById("billArea");
         const headerText = "Star Digital Online Bill Create Webapp Service\nDate: " + document.getElementById('currentDate').innerText;
         
-        // Add header before screenshot
         const tempHeader = document.createElement('div');
         tempHeader.style.cssText = 'padding: 10px; background: #3b3b4d; color: white; white-space: pre-line; font-size: 14px; text-align: center;';
         tempHeader.innerHTML = headerText.replace(/\n/g, '<br>');
         bill.prepend(tempHeader); 
 
         html2canvas(bill, { scale: 2 }).then(canvas => {
-            // Restore the original billArea structure
             bill.removeChild(tempHeader);
 
             let link = document.createElement("a");
@@ -460,11 +457,9 @@
         });
     }
 
-    // 3) & 4) Share Bill Function Fixes
+    // 2) Share Bill Function Fixes
     function shareBill() {
         const bill = document.getElementById("billArea");
-        const websiteLink = " [Website URL yahan dalen]"; // Placeholder for actual website URL
-        const customMessage = "\n\n⭐️ Aap bhi apne Customer ko digital bill banaye bilkul free me" + websiteLink;
         
         let headerText = "Star Digital Online Bill Create Webapp Service\nDate: " + document.getElementById('currentDate').innerText;
 
@@ -475,8 +470,11 @@
         if(custContactInput.value) {
             headerText += "\nContact: " + custContactInput.value;
         }
+        
+        // Final Share Text
+        const finalShareText = headerText + CUSTOM_SHARE_MSG + APP_WEBSITE_URL;
 
-        // Add header before screenshot
+        // Add temporary header for PNG screenshot
         const tempHeader = document.createElement('div');
         tempHeader.style.cssText = 'padding: 10px; background: #3b3b4d; color: white; white-space: pre-line; font-size: 14px; text-align: center;';
         tempHeader.innerHTML = headerText.replace(/\n/g, '<br>');
@@ -491,11 +489,12 @@
                     const file = new File([blob], "bill.png", { type: 'image/png' });
                     navigator.share({
                         title: 'Star Digital Bill',
-                        text: headerText + customMessage, // Share all text data + custom message
+                        text: finalShareText, // Use the fixed final text here
                         files: [file],
                     }).catch((error) => console.log('Error sharing', error));
                 } else {
-                    alert("आपका ब्राउज़र Share API को सपोर्ट नहीं करता है। इमेज डाउनलोड हो जाएगी।");
+                    alert("आपका ब्राउज़र Share API को सपोर्ट नहीं करता है। इमेज डाउनलोड हो जाएगी। \n\nशेयर टेक्स्ट (Share Text):\n" + finalShareText);
+                    
                     // Fallback to Download Image logic
                     let link = document.createElement("a");
                     let now = new Date();
@@ -525,7 +524,7 @@
         custContactInput.value = localStorage.getItem("cust_contact") || "";
     }
 
-    // 4) Auto focus movement FIX (Enter press on Qty)
+    // 1) Auto focus movement FIX
     itemNameInput.addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -539,12 +538,13 @@
         if (e.key === "Enter") {
             e.preventDefault();
             
-            // Check if Qty is empty, if so, show message and stay on Qty
+            // Fix 1: If Qty is empty, alert and stay
             if (qtyInput.value.length === 0 || parseFloat(qtyInput.value) === 0) {
                  alert("कृपया मात्रा (Qty) दर्ज करें।");
                  return; 
             }
             
+            // Fix 1: Move cursor to Rate
             rateInput.focus();
             current = 'rate';
             highlight();
@@ -555,12 +555,13 @@
         if (e.key === "Enter") {
             e.preventDefault();
             
-            // Check if Rate is empty, if so, show message and stay on Rate
+            // If Rate is empty, alert and stay
             if (rateInput.value.length === 0 || parseFloat(rateInput.value) === 0) {
                  alert("कृपया दर (Rate) दर्ज करें।");
                  return; 
             }
             
+            // Only save if both Qty and Rate are non-zero (validated inside saveItem too)
             saveItem();
         }
     });
