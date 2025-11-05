@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Digital Bill Maker - Free Online Bill Creation Webapp</title>
+    <meta name="description" content="Star Digital का फ्री ऑनलाइन बिल क्रिएशन वेबएप। अपने ग्राहकों के लिए तुरंत डिजिटल बिल बनाएं और PNG या लिंक के रूप में साझा करें।">
+    <meta name="keywords" content="digital bill maker, free bill app, online bill, star digital bill, instant bill, GST bill app, bill share">
+    <meta name="author" content="Star Digital">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff; /* Star Digital Blue */
+            --secondary-color: #28a745; /* Green for Enter/Update */
+            --dark-bg: #1e1e2d; /* Darker Background */
+            --light-bg: #2b2b40;
+            --text-color: #ffffff;
+            --highlight-color: #ffc107; /* Orange/Yellow highlight */
+            --footer-height: 50px; 
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-color);
+            padding-bottom: var(--footer-height); 
+        }
+        /* --- General Styling --- */
+        .main-header {
+            background: var(--primary-color);
+            padding: 15px 10px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .app-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .header-info {
+            font-size: 0.8em;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5px;
+        }
+        .menu-btn {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 50;
+            top: 0;
+            left: 0;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 18px;
+            color: var(--text-color);
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        .header {
+            display: flex;
+            background: var(--primary-color);
+            font-weight: bold;
+            text-align: center;
+        }
+        .header div {
+            padding: 10px;
+            flex: 1;
+        }
+        #itemList {
+            /* 4) IMPORTANT: Removed max-height so that html2canvas captures full length */
+            /* max-height: 250px; <-- REMOVED */ 
+            overflow-y: auto; /* Added to retain scrollability in normal view */
+            height: 250px; /* SETTING A FIXED HEIGHT FOR NORMAL VIEW */
+            font-size: 14px;
+            background: var(--light-bg);
+        }
+        .row {
+            display: flex;
+            border-bottom: 1px solid #444;
+            padding: 8px 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .row:hover {
+            background: #3a3a50;
+        }
+        .row div {
+            flex: 1;
+            text-align: center;
+        }
+        .row.selected {
+            background: #444;
+            border: 1px solid var(--highlight-color);
+        }
+        .top-inputs {
+            padding: 10px;
+            background: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            border-bottom: 1px solid #444;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            border: 1px solid #444;
+            background: #3b3b4d;
+            color: var(--text-color);
+            border-radius: 5px;
+            width: calc(100% - 22px); 
+            outline: none;
+        }
+        .total-box {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #333;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-top: 2px solid var(--highlight-color);
+        }
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+        .numpad button {
+            padding: 20px;
+            font-size: 20px;
+            background: #3b3b4d;
+            color: var(--text-color);
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .numpad button:active {
+            background: var(--highlight-color);
+            color: black;
+        }
+        .side-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+        .side-btns button {
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            background: var(--secondary-color);
+            color: black;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .bottom {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            background: #333;
+        }
+        .bottom button {
+            padding: 12px 20px;
+            font-size: 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .input-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .app-footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: var(--footer-height);
+            background: #111;
+            color: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            border-top: 1px solid #444;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-btn" onclick="openNav()">☰</div>
+<div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href="#">🏠 Home</a>
+    <a href="#">ℹ️ About Us</a>
+    <a href="#">🔒 Privacy Policy</a>
+    <a href="#">📞 Contact</a>
+</div>
+
+<div class="main-header">
+    <div class="app-title">Star Digital Online Bill Create Webapp Service</div>
+    <div class="header-info">
+        <div>App Version 1.3</div>
+        <div id="currentDate"></div>
+    </div>
+</div>
+
+<div class="top-inputs">
+    <input type="text" id="custName" placeholder="Customer Name (Optional)">
+    <input type="text" id="custContact" placeholder="Contact Number (Optional)">
+</div>
+
+<div id="billArea">
+    <div class="header">
+        <div>SR</div>
+        <div>ITEM</div>
+        <div>QTY</div>
+        <div>RATE</div>
+        <div>TOTAL</div>
+    </div>
+    <div id="itemList"></div>
+    <div class="total-box">
+        <div><b>Total Qty:</b> <span id="totalQty">0</span></div>
+        <div><b>₹</b> <span id="totalAmt">0</span></div>
+    </div>
+</div>
+
+<div class="top-inputs">
+    <div class="input-vertical">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)">
+        <input type="number" id="qty" placeholder="Qty" readonly>
+        <input type="number" id="rate" placeholder="Rate" readonly>
+    </div>
+</div>
+
+<div style="display: flex;">
+    <div style="width: 75%;">
+        <div class="numpad">
+            <button onclick="addNum('7')">7</button>
+            <button onclick="addNum('8')">8</button>
+            <button onclick="addNum('9')">9</button>
+            <button onclick="addNum('4')">4</button>
+            <button onclick="addNum('5')">5</button>
+            <button onclick="addNum('6')">6</button>
+            <button onclick="addNum('1')">1</button>
+            <button onclick="addNum('2')">2</button>
+            <button onclick="addNum('3')">3</button>
+            <button onclick="addNum('0')">0</button>
+            <button onclick="addNum('.')">.</button>
+            <button onclick="backspace()">⌫</button>
+        </div>
+    </div>
+    <div class="side-btns" style="width: 25%;">
+        <button type="button" onclick="saveItem()">Enter ×</button>
+        <button onclick="clearInput()">Clear ✖️</button>
+        <button onclick="deleteItem()" id="delBtn" disabled>Delete 🗑️</button>
+        <button onclick="clearTable()">🧹 Clear All</button>
+    </div>
+</div>
+
+<div class="bottom">
+    <button onclick="downloadImage()">🖼 Save Image</button>
+    <button onclick="shareBill()">📲 Share Bill</button>
+</div>
+
+<div class="app-footer">
+    <span>Aap bhi apne Customer ko digital bill banaye bilkul free me | Developed by Star Digital</span>
+</div>
+
+<script>
+    // --- Configuration ---
+    // 2) IMPORTANT: Setting the URL dynamically
+    const APP_WEBSITE_URL = window.location.href; 
+    const CUSTOM_SHARE_MSG = "\n\n⭐️ Aap bhi apne Customer ko digital bill banaye bilkul free me! Try it now: "; 
+    
+    // --- Variables and Elements ---
+    let current = 'qty';
+    let sr = 1;
+    let items = [];
+    let selectedIndex = -1;
+    const qtyInput = document.getElementById("qty");
+    const rateInput = document.getElementById("rate");
+    const itemNameInput = document.getElementById("itemName");
+    const custNameInput = document.getElementById("custName");
+    const custContactInput = document.getElementById("custContact");
+    const enterBtn = document.querySelector('.side-btns button:first-child');
+    const itemListDiv = document.getElementById("itemList"); // Added for scroll fix
+
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
+
+    qtyInput.setAttribute("readonly", true);
+    rateInput.setAttribute("readonly", true);
+
+    qtyInput.onclick = () => { current = 'qty'; highlight(); };
+    rateInput.onclick = () => { current = 'rate'; highlight(); };
+
+    function highlight() {
+        qtyInput.style.border = current === 'qty' ? "2px solid var(--highlight-color)" : "1px solid #444";
+        rateInput.style.border = current === 'rate' ? "2px solid var(--highlight-color)" : "1px solid #444";
+    }
+    highlight();
+
+    function addNum(n) {
+        let el = current === 'qty' ? qtyInput : rateInput;
+        if (n === '.' && el.value.includes('.')) return;
+        el.value += n;
+    }
+
+    function backspace() {
+        let el = current === 'qty' ? qtyInput : rateInput;
+        el.value = el.value.slice(0, -1);
+    }
+
+    function saveItem() {
+        let qty = parseFloat(qtyInput.value) || 0;
+        let rate = parseFloat(rateInput.value) || 0;
+        let name = itemNameInput.value || "-";
+
+        // Non-edit mode validation (No Alerts needed, just prevent saving if incomplete)
+        if (selectedIndex < 0 && (qty <= 0 || rate <= 0)) {
+             // Do nothing if validation fails (No alert, no save, cursor stays on error field via keydown logic)
+             current = (qty <= 0) ? 'qty' : 'rate';
+             highlight();
+             return;
+        }
+
+        let total = qty * rate;
+
+        if (selectedIndex >= 0) {
+            items[selectedIndex] = { sr: selectedIndex + 1, name, qty, rate, total };
+            selectedIndex = -1;
+            enterBtn.innerText = "Enter ×";
+        } else {
+            items.push({ sr: sr++, name, qty, rate, total });
+        }
+        renderTable();
+        clearInput();
+        saveToLocal();
+    }
+
+    function renderTable() {
+        const list = itemListDiv;
+        list.innerHTML = "";
+        let totalQty = 0, totalAmt = 0;
+        items.forEach((item, index) => {
+            totalQty += item.qty;
+            totalAmt += item.total;
+            let row = document.createElement("div");
+            row.className = "row" + (selectedIndex === index ? " selected" : "");
+            row.onclick = () => selectRow(index);
+            row.innerHTML = `
+                <div>${item.sr}</div>
+                <div>${item.name}</div>
+                <div>${item.qty}</div>
+                <div>${item.rate.toFixed(2)}</div>
+                <div>₹${item.total.toFixed(2)}</div>
+            `;
+            list.appendChild(row);
+        });
+        document.getElementById("totalQty").innerText = totalQty;
+        document.getElementById("totalAmt").innerText = totalAmt.toFixed(2);
+        document.getElementById("delBtn").disabled = selectedIndex < 0;
+
+        // 3) Auto Scroll to New Item Fix
+        if (items.length > 0) {
+            list.scrollTop = list.scrollHeight;
+        }
+    }
+
+    function clearInput() {
+        qtyInput.value = "";
+        rateInput.value = "";
+        itemNameInput.value = "";
+        selectedIndex = -1;
+        current = 'qty';
+        highlight();
+        enterBtn.innerText = "Enter ×";
+        renderTable(); 
+    }
+
+    function clearTable() {
+        if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
+            items = [];
+            sr = 1;
+            renderTable();
+            localStorage.removeItem("bill_items");
+            alert("टेबल क्लियर हो गई!");
+        }
+    }
+
+    function selectRow(index) {
+        if (selectedIndex === index) {
+            clearInput();
+            return;
+        }
+        selectedIndex = index;
+        let item = items[index];
+        itemNameInput.value = item.name;
+        qtyInput.value = item.qty;
+        rateInput.value = item.rate;
+        enterBtn.innerText = "Update ✅";
+        current = 'qty'; 
+        highlight();
+        renderTable();
+    }
+
+    function deleteItem() {
+        if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
+            items.splice(selectedIndex, 1);
+            sr = 1;
+            items.forEach(i => i.sr = sr++);
+            selectedIndex = -1;
+            renderTable();
+            saveToLocal();
+            clearInput();
+        }
+    }
+
+    // 4) HTML2Canvas Pre-processing Logic
+    function processBillCapture(action) {
+        const bill = document.getElementById("billArea");
+        
+        // --- 4) Maximize Capture Area Fix ---
+        // Temporarily remove fixed height and overflow to capture all rows
+        const originalHeight = itemListDiv.style.height;
+        const originalOverflow = itemListDiv.style.overflowY;
+
+        itemListDiv.style.height = 'auto';
+        itemListDiv.style.overflowY = 'visible';
+
+        // Add temporary header for PNG screenshot
+        let headerText = "Star Digital Online Bill Create Webapp Service\nDate: " + document.getElementById('currentDate').innerText;
+        if(custNameInput.value) {
+            headerText += "\nCustomer: " + custNameInput.value;
+        }
+        if(custContactInput.value) {
+            headerText += "\nContact: " + custContactInput.value;
+        }
+
+        const tempHeader = document.createElement('div');
+        tempHeader.style.cssText = 'padding: 10px; background: #3b3b4d; color: white; white-space: pre-line; font-size: 14px; text-align: center;';
+        tempHeader.innerHTML = headerText.replace(/\n/g, '<br>');
+
+        bill.prepend(tempHeader); 
+
+        html2canvas(bill, { scale: 2 }).then(canvas => {
+            // Restore Bill Area to normal view
+            bill.removeChild(tempHeader);
+            itemListDiv.style.height = originalHeight;
+            itemListDiv.style.overflowY = originalOverflow;
+
+            if (action === 'download') {
+                let link = document.createElement("a");
+                let now = new Date();
+                let timestamp = now.toLocaleDateString().replace(/\//g, '-') + "_" + now.toLocaleTimeString().replace(/:/g, '-');
+                link.download = (custNameInput.value || "bill") + "_" + timestamp + ".png";
+                link.href = canvas.toDataURL();
+                link.click();
+                alert("बिल इमेज सफलतापूर्वक सेव हो गई।");
+            } else if (action === 'share') {
+                // 2) Final Share Text FIX
+                const finalShareText = headerText + CUSTOM_SHARE_MSG + APP_WEBSITE_URL;
+
+                canvas.toBlob(function(blob) {
+                    if (navigator.share) {
+                        const file = new File([blob], "bill.png", { type: 'image/png' });
+                        navigator.share({
+                            title: 'Star Digital Bill',
+                            text: finalShareText,
+                            files: [file],
+                        }).catch((error) => console.log('Error sharing', error));
+                    } else {
+                        alert("आपका ब्राउज़र Share API को सपोर्ट नहीं करता है। इमेज डाउनलोड हो जाएगी।");
+                        // Fallback to Download Image logic
+                        let link = document.createElement("a");
+                        let now = new Date();
+                        let timestamp = now.toLocaleDateString().replace(/\//g, '-') + "_" + now.toLocaleTimeString().replace(/:/g, '-');
+                        link.download = (custNameInput.value || "bill") + "_" + timestamp + ".png";
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    }
+                }, 'image/png');
+            }
+        });
+    }
+
+    function downloadImage() {
+        processBillCapture('download');
+    }
+
+    function shareBill() {
+        processBillCapture('share');
+    }
+
+    function saveToLocal() {
+        localStorage.setItem("bill_items", JSON.stringify(items));
+        localStorage.setItem("cust_name", custNameInput.value);
+        localStorage.setItem("cust_contact", custContactInput.value);
+    }
+
+    function loadFromLocal() {
+        const data = JSON.parse(localStorage.getItem("bill_items") || "[]");
+        if (data.length) {
+            items = data;
+            sr = items.length + 1;
+            renderTable();
+        }
+        custNameInput.value = localStorage.getItem("cust_name") || "";
+        custContactInput.value = localStorage.getItem("cust_contact") || "";
+    }
+
+    // 1) Auto focus movement FIX (NO ALERTS)
+    itemNameInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            qtyInput.focus();
+            current = 'qty';
+            highlight();
+        }
+    });
+
+    qtyInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            
+            // 1) NO ALERT: If Qty is empty, just stay on Qty input.
+            if (qtyInput.value.length === 0 || parseFloat(qtyInput.value) === 0) {
+                 return; 
+            }
+            
+            // Move cursor to Rate
+            rateInput.focus();
+            current = 'rate';
+            highlight();
+        }
+    });
+
+    rateInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            
+            // 1) NO ALERT: If Rate is empty, stay on Rate input.
+            if (rateInput.value.length === 0 || parseFloat(rateInput.value) === 0) {
+                 return; 
+            }
+            
+            // Save Item
+            saveItem();
+            // Optional: Move focus back to itemName for quick new entry
+            itemNameInput.focus();
+            current = 'qty';
+            highlight();
+        }
+    });
+
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+    window.onload = loadFromLocal;
+</script>
+</body>
+</html>
