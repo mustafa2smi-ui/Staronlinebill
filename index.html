@@ -597,7 +597,7 @@ row.innerHTML = `
         enterBtn.innerText = "Enter ×";
         renderTable(); 
     }
-
+/*
     function clearTable() {
         if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
             items = [];
@@ -607,7 +607,27 @@ row.innerHTML = `
             alert("टेबल क्लियर हो गई!");
         }
     }
-
+*/
+    function clearTable() {
+    if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
+        items = [];
+        sr = 1;
+        
+        // FIX: Clear Customer Name and Contact inputs
+        custNameInput.value = ""; 
+        custContactInput.value = "";
+        
+        renderTable();
+        
+        // FIX: Also clear them from Local Storage
+        localStorage.removeItem("bill_items");
+        localStorage.removeItem("cust_name");
+        localStorage.removeItem("cust_contact");
+        
+        alert("टेबल क्लियर हो गई!");
+    }
+    }
+    
     function selectRow(index) {
         if (selectedIndex === index) {
             clearInput();
