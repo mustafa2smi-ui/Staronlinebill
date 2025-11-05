@@ -348,13 +348,28 @@
     text-overflow: ellipsis;
         }
         */
+        /* Sidebar के अंदर .closebtn के लिए CSS */
+.sidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+    
+    /* Close बटन को लाल रंग दें */
+    color: #e74c3c; /* Bright Red Color */
+    
+    /* इसे कर्सर से क्लिक करने योग्य (clickable) दिखाएँ */
+    cursor: pointer; 
+}
+        
     </style>
 </head>
 <body>
 
 <div class="menu-btn" onclick="openNav()">☰</div>
 <div id="mySidebar" class="sidebar">
-    <a href= class="closebtn" onclick="closeNav()">×</a>
+    <span class="closebtn" onclick="closeNav()">×</span>
     <a href="#">🏠 Home</a>
     <a href="#">ℹ️ About Us</a>
     <a href="#">🔒 Privacy Policy</a>
