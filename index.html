@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="manifest" href="/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Digital Bill Maker - Free Online Bill Creation Webapp</title>
@@ -585,10 +586,18 @@
         document.getElementById("mySidebar").style.width = "250px";
     }
 
-    function closeNav() {
-        document.getElementById("mySidebar").style.width = "0";
+    // Service Worker Registration for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
     }
-
+      
     window.onload = loadFromLocal;
 </script>
 </body>
