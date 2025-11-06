@@ -453,7 +453,7 @@
         </div>
     </div>
     <div class="side-btns" style="width: 25%;">
-        <!--<button onclick="clearInput()">Clear ✖️</button>-->
+        <button onclick="clearInput()">Clear ✖️</button>
         <button onclick="deleteItem()" id="delBtn" disabled>Delete 🗑️</button>
         <button type="button" onclick="saveItem()">Enter ↩️</button>
         <button onclick="clearTable()">🧹ClearAll</button>
@@ -586,7 +586,7 @@ row.innerHTML = `
             list.scrollTop = list.scrollHeight;
         }
     }
-/*
+
     function clearInput() {
         qtyInput.value = "";
         rateInput.value = "";
@@ -597,7 +597,7 @@ row.innerHTML = `
         enterBtn.innerText = "Enter ×";
         renderTable(); 
     }
-    */
+    
     /*
     // clearInput फ़ंक्शन में
 function clearInput() {
@@ -615,6 +615,7 @@ function clearInput() {
     renderTable(); 
 }
     */
+    /*
     // Function: selectRow(index)
 function selectRow(index) {
     if (selectedIndex === index) {
@@ -640,7 +641,7 @@ function selectRow(index) {
     // (Optional) delBtn को जबरदस्ती Disable करें ताकि गलती से डिलीट न हो जाए।
     document.getElementById("delBtn").disabled = true; 
 }
-    
+    */
 /*
     function clearTable() {
         if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
@@ -671,7 +672,7 @@ function selectRow(index) {
         alert("टेबल क्लियर हो गई!");
     }
     }
-    /*
+    
     function selectRow(index) {
         if (selectedIndex === index) {
             clearInput();
@@ -687,7 +688,7 @@ function selectRow(index) {
         highlight();
         renderTable();
     }
-*/
+
     /*
     // selectRow फ़ंक्शन में
 function selectRow(index) {
@@ -710,6 +711,7 @@ function selectRow(index) {
     renderTable(); // यह delBtn को इनेबल भी करेगा
 }
     */
+    /*
     // Function: clearInput()
 function clearInput() {
     qtyInput.value = "";
@@ -725,7 +727,7 @@ function clearInput() {
     // delBtn को डिलीट ही रहने दें और इसे renderTable() के माध्यम से Disable करवाएँ
     renderTable(); 
 }
-    
+    */
 /*
     function deleteItem() {
         if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
