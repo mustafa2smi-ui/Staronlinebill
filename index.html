@@ -453,7 +453,7 @@
         </div>
     </div>
     <div class="side-btns" style="width: 25%;">
-        <button onclick="clearInput()">Clear ✖️</button>
+        <!--<button onclick="clearInput()">Clear ✖️</button>-->
         <button onclick="deleteItem()" id="delBtn" disabled>Delete 🗑️</button>
         <button type="button" onclick="saveItem()">Enter ↩️</button>
         <button onclick="clearTable()">🧹ClearAll</button>
@@ -586,7 +586,7 @@ row.innerHTML = `
             list.scrollTop = list.scrollHeight;
         }
     }
-
+/*
     function clearInput() {
         qtyInput.value = "";
         rateInput.value = "";
@@ -597,6 +597,23 @@ row.innerHTML = `
         enterBtn.innerText = "Enter ×";
         renderTable(); 
     }
+    */
+    // clearInput फ़ंक्शन में
+function clearInput() {
+    qtyInput.value = "";
+    rateInput.value = "";
+    itemNameInput.value = "";
+    selectedIndex = -1;
+    current = 'qty';
+    highlight();
+    enterBtn.innerText = "Enter ↩️"; // Original Enter symbol (आपके HTML के अनुसार ↩️)
+    
+    // F I X 2: deleteItem बटन का नाम वापस बदलें
+    document.getElementById("delBtn").innerText = "Delete 🗑️"; 
+    
+    renderTable(); 
+}
+    
 /*
     function clearTable() {
         if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
@@ -627,7 +644,7 @@ row.innerHTML = `
         alert("टेबल क्लियर हो गई!");
     }
     }
-    
+    /*
     function selectRow(index) {
         if (selectedIndex === index) {
             clearInput();
@@ -643,7 +660,28 @@ row.innerHTML = `
         highlight();
         renderTable();
     }
-
+*/
+    // selectRow फ़ंक्शन में
+function selectRow(index) {
+    if (selectedIndex === index) {
+        clearInput();
+        return;
+    }
+    selectedIndex = index;
+    let item = items[index];
+    itemNameInput.value = item.name;
+    qtyInput.value = item.qty;
+    rateInput.value = item.rate;
+    
+    // F I X 1: deleteItem बटन का नाम बदलें
+    document.getElementById("delBtn").innerText = "Update ✅"; 
+    
+    enterBtn.innerText = "Enter ×"; // Enter बटन को वापस Enter पर सेट करें या न बदलें
+    current = 'qty'; 
+    highlight();
+    renderTable(); // यह delBtn को इनेबल भी करेगा
+}
+/*
     function deleteItem() {
         if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
             items.splice(selectedIndex, 1);
@@ -655,7 +693,29 @@ row.innerHTML = `
             clearInput();
         }
     }
-
+*/
+    // deleteItem फ़ंक्शन में
+function deleteItem() {
+    const delBtn = document.getElementById("delBtn");
+    
+    if (delBtn.innerText.includes("Update")) {
+        // F I X 3: यदि बटन Update है, तो saveItem() चलाएँ
+        saveItem(); 
+        return; // अपडेट के बाद आगे डिलीट लॉजिक पर न जाएँ
+    }
+    
+    // पुराना डिलीट लॉजिक:
+    if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
+        items.splice(selectedIndex, 1);
+        sr = 1;
+        items.forEach(i => i.sr = sr++);
+        selectedIndex = -1;
+        renderTable();
+        saveToLocal();
+        clearInput();
+    }
+}
+    
     // 4) HTML2Canvas Pre-processing Logic
     function processBillCapture(action) {
         const bill = document.getElementById("billArea");
