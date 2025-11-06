@@ -414,14 +414,6 @@ function escapeHtml(unsafe) {
             let row = document.createElement("div");
             row.className = "row" + (selectedIndex === index ? " selected" : "");
             row.onclick = () => selectRow(index);
-            /*row.innerHTML = `
-                <div>${item.sr}</div>
-                <div>${item.name}</div>
-                <div>${item.qty}</div>
-                <div>${item.rate.toFixed(2)}</div>
-                <div>₹${item.total.toFixed(2)}</div>
-            `;
-            */
             // NEW SECURE CODE
 row.innerHTML = `
     <div>${item.sr}</div>
@@ -452,62 +444,6 @@ row.innerHTML = `
         enterBtn.innerText = "Enter ×";
         renderTable(); 
     }
-    
-    /*
-    // clearInput फ़ंक्शन में
-function clearInput() {
-    qtyInput.value = "";
-    rateInput.value = "";
-    itemNameInput.value = "";
-    selectedIndex = -1;
-    current = 'qty';
-    highlight();
-    enterBtn.innerText = "Enter ↩️"; // Original Enter symbol (आपके HTML के अनुसार ↩️)
-    
-    // F I X 2: deleteItem बटन का नाम वापस बदलें
-    document.getElementById("delBtn").innerText = "Delete 🗑️"; 
-    
-    renderTable(); 
-}
-    */
-    /*
-    // Function: selectRow(index)
-function selectRow(index) {
-    if (selectedIndex === index) {
-        clearInput();
-        return;
-    }
-    selectedIndex = index;
-    let item = items[index];
-    itemNameInput.value = item.name;
-    qtyInput.value = item.qty;
-    rateInput.value = item.rate;
-    
-    // ✅ FIX 1: enterBtn का नाम बदलकर 'Update' करें
-    enterBtn.innerText = "Update ✅"; 
-    
-    // F I X: सुनिश्चित करें कि delBtn 'Delete' ही रहे (यह clearInput() और renderTable() में नियंत्रित होगा)
-    // यहाँ delBtn को छूने की जरूरत नहीं है, बस enterBtn को बदलें
-    
-    current = 'qty'; 
-    highlight();
-    renderTable(); 
-    
-    // (Optional) delBtn को जबरदस्ती Disable करें ताकि गलती से डिलीट न हो जाए।
-    document.getElementById("delBtn").disabled = true; 
-}
-    */
-/*
-    function clearTable() {
-        if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
-            items = [];
-            sr = 1;
-            renderTable();
-            localStorage.removeItem("bill_items");
-            alert("टेबल क्लियर हो गई!");
-        }
-    }
-*/
     function clearTable() {
     if (confirm("क्या आप सुनिश्चित हैं कि आप पूरी टेबल हटाना चाहते हैं? यह डेटा लोकल स्टोरेज से भी हट जाएगा।")) {
         items = [];
@@ -543,46 +479,6 @@ function selectRow(index) {
         highlight();
         renderTable();
     }
-
-    /*
-    // selectRow फ़ंक्शन में
-function selectRow(index) {
-    if (selectedIndex === index) {
-        clearInput();
-        return;
-    }
-    selectedIndex = index;
-    let item = items[index];
-    itemNameInput.value = item.name;
-    qtyInput.value = item.qty;
-    rateInput.value = item.rate;
-    
-    // F I X 1: deleteItem बटन का नाम बदलें
-    document.getElementById("delBtn").innerText = "Update ✅"; 
-    
-    enterBtn.innerText = "Enter ×"; // Enter बटन को वापस Enter पर सेट करें या न बदलें
-    current = 'qty'; 
-    highlight();
-    renderTable(); // यह delBtn को इनेबल भी करेगा
-}
-    */
-    /*
-    // Function: clearInput()
-function clearInput() {
-    qtyInput.value = "";
-    rateInput.value = "";
-    itemNameInput.value = "";
-    selectedIndex = -1;
-    current = 'qty';
-    highlight();
-    
-    // ✅ FIX 2: enterBtn का नाम वापस 'Enter ↩️' करें
-    enterBtn.innerText = "Enter ↩️"; 
-    
-    // delBtn को डिलीट ही रहने दें और इसे renderTable() के माध्यम से Disable करवाएँ
-    renderTable(); 
-}
-    */
 /*
     function deleteItem() {
         if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
