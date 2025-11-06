@@ -598,6 +598,7 @@ row.innerHTML = `
         renderTable(); 
     }
     */
+    /*
     // clearInput फ़ंक्शन में
 function clearInput() {
     qtyInput.value = "";
@@ -612,6 +613,32 @@ function clearInput() {
     document.getElementById("delBtn").innerText = "Delete 🗑️"; 
     
     renderTable(); 
+}
+    */
+    // Function: selectRow(index)
+function selectRow(index) {
+    if (selectedIndex === index) {
+        clearInput();
+        return;
+    }
+    selectedIndex = index;
+    let item = items[index];
+    itemNameInput.value = item.name;
+    qtyInput.value = item.qty;
+    rateInput.value = item.rate;
+    
+    // ✅ FIX 1: enterBtn का नाम बदलकर 'Update' करें
+    enterBtn.innerText = "Update ✅"; 
+    
+    // F I X: सुनिश्चित करें कि delBtn 'Delete' ही रहे (यह clearInput() और renderTable() में नियंत्रित होगा)
+    // यहाँ delBtn को छूने की जरूरत नहीं है, बस enterBtn को बदलें
+    
+    current = 'qty'; 
+    highlight();
+    renderTable(); 
+    
+    // (Optional) delBtn को जबरदस्ती Disable करें ताकि गलती से डिलीट न हो जाए।
+    document.getElementById("delBtn").disabled = true; 
 }
     
 /*
@@ -661,6 +688,7 @@ function clearInput() {
         renderTable();
     }
 */
+    /*
     // selectRow फ़ंक्शन में
 function selectRow(index) {
     if (selectedIndex === index) {
@@ -681,6 +709,23 @@ function selectRow(index) {
     highlight();
     renderTable(); // यह delBtn को इनेबल भी करेगा
 }
+    */
+    // Function: clearInput()
+function clearInput() {
+    qtyInput.value = "";
+    rateInput.value = "";
+    itemNameInput.value = "";
+    selectedIndex = -1;
+    current = 'qty';
+    highlight();
+    
+    // ✅ FIX 2: enterBtn का नाम वापस 'Enter ↩️' करें
+    enterBtn.innerText = "Enter ↩️"; 
+    
+    // delBtn को डिलीट ही रहने दें और इसे renderTable() के माध्यम से Disable करवाएँ
+    renderTable(); 
+}
+    
 /*
     function deleteItem() {
         if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
