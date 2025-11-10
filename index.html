@@ -355,7 +355,7 @@
         rateInput.style.border = current === 'rate' ? "2px solid var(--highlight-color)" : "1px solid #444";
     }
     highlight();
-
+/*
     function addNum(n) {
         let el = current === 'qty' ? qtyInput : rateInput;
         
@@ -371,7 +371,24 @@
         
         el.value += n;
     }
+*/
+    function addNum(n) {
+    const el = current === 'qty' ? qtyInput : rateInput;
 
+    // Allow only one decimal point
+    if (n === '.' && el.value.includes('.')) return;
+
+    // Prevent leading '.' (like ".5") → make it "0.5"
+    if (n === '.' && el.value === '') {
+        el.value = '0.';
+        return;
+    }
+
+    // Just append number normally
+    el.value += n;
+
+    // Do NOT reset selectedIndex here (that was causing disappearance)
+}
     function backspace() {
         let el = current === 'qty' ? qtyInput : rateInput;
         el.value = el.value.slice(0, -1);
