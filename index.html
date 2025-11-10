@@ -333,7 +333,57 @@
     const enterBtn = document.getElementById("enterBtn");
     const delBtn = document.getElementById("delBtn");
     const itemListDiv = document.getElementById("itemList"); 
-    
+    // ---------------------------
+// Qty & Rate input limits (with decimals)
+// Paste this just after qtyInput and rateInput definitions
+// ---------------------------
+
+// Configuration (change as per your need)
+const QTY_MAX_DIGITS = 6;        // Qty ke integer part me max digits
+const QTY_MAX_DECIMALS = 2;      // Qty me max decimal digits
+const RATE_MAX_DIGITS = 8;       // Rate ke integer part me max digits
+const RATE_MAX_DECIMALS = 2;     // Rate me max decimal digits
+
+// Helper function for decimal inputs
+function limitDecimalInput(el, maxInt, maxDec) {
+  el.addEventListener("input", function () {
+    let v = this.value || "";
+
+    // Sirf digits aur ek hi dot allow
+    v = v.replace(/[^0-9.]/g, "");
+    const firstDot = v.indexOf(".");
+    if (firstDot !== -1) {
+      // Dusre dot hatao
+      v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, "");
+    }
+
+    // Split into integer aur decimal
+    let [intPart, decPart] = v.split(".");
+    intPart = intPart || "";
+
+    // Integer limit
+    if (intPart.length > maxInt) {
+      intPart = intPart.slice(0, maxInt);
+    }
+
+    // Decimal limit
+    if (typeof decPart !== "undefined") {
+      decPart = decPart.slice(0, maxDec);
+      v = intPart + "." + decPart;
+    } else {
+      v = intPart;
+    }
+
+    // Agar sirf dot likha gaya ho to "0." bana do
+    if (v === ".") v = "0.";
+
+    this.value = v;
+  });
+}
+
+// Apply limits
+limitDecimalInput(qtyInput, QTY_MAX_DIGITS, QTY_MAX_DECIMALS);
+limitDecimalInput(rateInput, RATE_MAX_DIGITS, RATE_MAX_DECIMALS);
     // XSS Protection Function: HTML Special characters को एस्केप करता है।
     function escapeHtml(unsafe) {
         if (!unsafe) return '';
