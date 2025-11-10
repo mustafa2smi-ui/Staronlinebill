@@ -323,7 +323,7 @@
 <div class="app-footer">
     <span>Aap bhi apne Customer ko digital bill banaye bilkul free me | Developed by Star Digital</span>
 </div>
-
+<!--
 <script>
     // --- Configuration ---
     // 2) IMPORTANT: Setting the URL dynamically
@@ -685,5 +685,365 @@ window.addEventListener('click', function(e){
       
     window.onload = loadFromLocal;
 </script>
+    -->
+    <script>
+    // --- Configuration ---
+    const APP_WEBSITE_URL = window.location.href; 
+    const CUSTOM_SHARE_MSG = "\n\n⭐️ Aap bhi apne Customer ko digital bill banaye bilkul free me! Try it now: "; 
+    
+    // --- Variables and Elements ---
+    let current = 'qty';
+    let sr = 1;
+    let items = [];
+    let selectedIndex = -1; // -1 means No row selected
+    const qtyInput = document.getElementById("qty");
+    const rateInput = document.getElementById("rate");
+    const itemNameInput = document.getElementById("itemName");
+    const custNameInput = document.getElementById("custName");
+    const custContactInput = document.getElementById("custContact");
+    
+    // FIX: enterBtn अब साइड-बटन में दूसरा (Enter) बटन है
+    const enterBtn = document.querySelector('.side-btns button:nth-child(2)'); 
+    const delBtn = document.getElementById("delBtn"); // Delete button
+    const itemListDiv = document.getElementById("itemList"); 
+    const clearAllBtn = document.querySelector('.side-btns button:last-child'); // ClearAll button
+    
+// XSS Protection Function: HTML Special characters को एस्केप करता है।
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe.replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+}
+
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
+
+    qtyInput.setAttribute("readonly", true);
+    rateInput.setAttribute("readonly", true);
+
+    qtyInput.onclick = () => { current = 'qty'; highlight(); };
+    rateInput.onclick = () => { current = 'rate'; highlight(); };
+
+    function highlight() {
+        qtyInput.style.border = current === 'qty' ? "2px solid var(--highlight-color)" : "1px solid #444";
+        rateInput.style.border = current === 'rate' ? "2px solid var(--highlight-color)" : "1px solid #444";
+    }
+    highlight();
+
+    function addNum(n) {
+        let el = current === 'qty' ? qtyInput : rateInput;
+        if (n === '.' && el.value.includes('.')) return;
+        el.value += n;
+        
+        // FIX: numpad use करने पर row selection को हटाएँ
+        if (selectedIndex !== -1) {
+            selectedIndex = -1; 
+            renderTable(); // to remove selection highlight
+        }
+    }
+
+    function backspace() {
+        let el = current === 'qty' ? qtyInput : rateInput;
+        el.value = el.value.slice(0, -1);
+    }
+
+    function saveItem() {
+        let qty = parseFloat(qtyInput.value) || 0;
+        let rate = parseFloat(rateInput.value) || 0;
+        let name = itemNameInput.value || "-";
+
+        // Validation 
+        if (qty <= 0 || rate <= 0) {
+             current = (qty <= 0) ? 'qty' : 'rate';
+             highlight();
+             return;
+        }
+
+        let total = qty * rate;
+
+        if (selectedIndex >= 0) {
+            // ✅ UPDATE LOGIC: row selected है तो अपडेट करें
+            items[selectedIndex].name = name;
+            items[selectedIndex].qty = qty;
+            items[selectedIndex].rate = rate;
+            items[selectedIndex].total = total;
+            selectedIndex = -1;
+            
+            // FIX: enterBtn का नाम बदलने की जरूरत नहीं है
+            // enterBtn.innerText = "Enter ↩️"; 
+            
+        } else {
+            // NEW ITEM LOGIC: नया आइटम दर्ज करें
+            items.push({ sr: sr++, name, qty, rate, total });
+        }
+        renderTable();
+        clearInput();
+        saveToLocal();
+    }
+
+    function renderTable() {
+        const list = itemListDiv;
+        list.innerHTML = "";
+        let totalQty = 0, totalAmt = 0;
+        items.forEach((item, index) => {
+            totalQty += item.qty;
+            totalAmt += item.total;
+            let row = document.createElement("div");
+            row.className = "row" + (selectedIndex === index ? " selected" : "");
+            row.onclick = () => selectRow(index);
+
+            // NEW SECURE CODE
+            row.innerHTML = `
+                <div>${item.sr}</div>
+                <div>${escapeHtml(item.name)}</div>  <div>${item.qty}</div>
+                <div>${item.rate.toFixed(2)}</div>
+                <div>₹${item.total.toFixed(2)}</div>
+            `;
+            
+            list.appendChild(row);
+        });
+        document.getElementById("totalQty").innerText = totalQty;
+        document.getElementById("totalAmt").innerText = totalAmt.toFixed(2);
+        
+        // FIX: delBtn केवल तब इनेबल होगा जब कोई row selected हो
+        delBtn.disabled = selectedIndex < 0; 
+
+        // Auto Scroll to New Item Fix
+        if (items.length > 0) {
+            list.scrollTop = list.scrollHeight;
+        }
+    }
+
+    function clearInput() {
+        // FIX: यह केवल Item, Qty, Rate और Selection को क्लियर करता है
+        qtyInput.value = "";
+        rateInput.value = "";
+        itemNameInput.value = "";
+        selectedIndex = -1;
+        current = 'qty';
+        highlight();
+        // enterBtn का नाम बदलने की जरूरत नहीं है
+        renderTable(); 
+    }
+    
+    // --- FIX: ClearAll Logic ---
+    function clearTable() {
+        if (confirm("⚠️ क्या आप सुनिश्चित हैं कि आप बिल की सभी जानकारी (टेबल, कस्टमर इनपुट और लोकल स्टोरेज) हटाना चाहते हैं?")) {
+            items = [];
+            sr = 1;
+            
+            // ✅ FIX: Table Data, Item Inputs और Customer Inputs को पूरी तरह से क्लियर करें
+            clearInput(); // Item/Qty/Rate/Selection clear करता है
+            custNameInput.value = ""; 
+            custContactInput.value = "";
+            
+            renderTable();
+            
+            // Local Storage clear करें
+            localStorage.removeItem("bill_items");
+            localStorage.removeItem("cust_name");
+            localStorage.removeItem("cust_contact");
+            
+            alert("टेबल और सभी इनपुट सफलतापूर्वक क्लियर हो गए!");
+        }
+    }
+    
+    function selectRow(index) {
+        if (selectedIndex === index) {
+            clearInput(); // दोबारा क्लिक पर डी-सेलेक्ट करें
+            return;
+        }
+        selectedIndex = index;
+        let item = items[index];
+        itemNameInput.value = item.name;
+        qtyInput.value = item.qty;
+        rateInput.value = item.rate;
+        // FIX: Enter बटन का नाम नहीं बदलेंगे।
+        current = 'qty'; 
+        highlight();
+        renderTable(); // Selection highlight करने के लिए
+    }
+
+    function deleteItem() {
+        // FIX: यह हमेशा डिलीट करेगा जब row selected होगी।
+        if (selectedIndex >= 0 && confirm("क्या आप इस आइटम को हटाना चाहते हैं?")) {
+            items.splice(selectedIndex, 1);
+            sr = 1;
+            items.forEach(i => i.sr = sr++);
+            selectedIndex = -1;
+            renderTable();
+            saveToLocal();
+            clearInput();
+        } else if (selectedIndex < 0) {
+             alert("कृपया डिलीट करने के लिए एक आइटम चुनें।");
+        }
+    }
+
+    // --- (Rest of the functions: processBillCapture, downloadImage, shareBill, saveToLocal, loadFromLocal, focus listeners, openNav/closeNav, PWA) ---
+    // ... (Your remaining functions: processBillCapture, downloadImage, shareBill, saveToLocal, loadFromLocal, event listeners for focus, openNav, closeNav, and PWA registration)
+
+    // 4) HTML2Canvas Pre-processing Logic (No change needed here)
+    function processBillCapture(action) {
+        const bill = document.getElementById("billArea");
+        
+        const originalHeight = itemListDiv.style.height;
+        const originalOverflow = itemListDiv.style.overflowY;
+
+        itemListDiv.style.height = 'auto';
+        itemListDiv.style.overflowY = 'visible';
+
+        let headerText = "Star Digital Online Bill Create Webapp Service\nDate: " + document.getElementById('currentDate').innerText;
+        if(custNameInput.value) {
+            headerText += "\nCustomer: " + custNameInput.value;
+        }
+        if(custContactInput.value) {
+            headerText += "\nContact: " + custContactInput.value;
+        }
+
+        const tempHeader = document.createElement('div');
+        tempHeader.style.cssText = 'padding: 10px; background: #3b3b4d; color: white; white-space: pre-line; font-size: 14px; text-align: center;';
+        tempHeader.innerHTML = headerText.replace(/\n/g, '<br>');
+
+        bill.prepend(tempHeader); 
+
+        html2canvas(bill, { scale: 2 }).then(canvas => {
+            bill.removeChild(tempHeader);
+            itemListDiv.style.height = originalHeight;
+            itemListDiv.style.overflowY = originalOverflow;
+
+            if (action === 'download') {
+                let link = document.createElement("a");
+                let now = new Date();
+                let timestamp = now.toLocaleDateString().replace(/\//g, '-') + "_" + now.toLocaleTimeString().replace(/:/g, '-');
+                link.download = (custNameInput.value || "bill") + "_" + timestamp + ".png";
+                link.href = canvas.toDataURL();
+                link.click();
+                alert("बिल इमेज सफलतापूर्वक सेव हो गई।");
+            } else if (action === 'share') {
+                const finalShareText = headerText + CUSTOM_SHARE_MSG + APP_WEBSITE_URL;
+
+                canvas.toBlob(function(blob) {
+                    if (navigator.share) {
+                        const file = new File([blob], "bill.png", { type: 'image/png' });
+                        navigator.share({
+                            title: 'Star Digital Bill',
+                            text: finalShareText,
+                            files: [file],
+                        }).catch((error) => console.log('Error sharing', error));
+                    } else {
+                        alert("आपका ब्राउज़र Share API को सपोर्ट नहीं करता है। इमेज डाउनलोड हो जाएगी।");
+                        let link = document.createElement("a");
+                        let now = new Date();
+                        let timestamp = now.toLocaleDateString().replace(/\//g, '-') + "_" + now.toLocaleTimeString().replace(/:/g, '-');
+                        link.download = (custNameInput.value || "bill") + "_" + timestamp + ".png";
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    }
+                }, 'image/png');
+            }
+        });
+    }
+
+    function downloadImage() {
+        processBillCapture('download');
+    }
+
+    function shareBill() {
+        processBillCapture('share');
+    }
+
+    function saveToLocal() {
+        localStorage.setItem("bill_items", JSON.stringify(items));
+        localStorage.setItem("cust_name", custNameInput.value);
+        localStorage.setItem("cust_contact", custContactInput.value);
+    }
+
+    function loadFromLocal() {
+        const data = JSON.parse(localStorage.getItem("bill_items") || "[]");
+        if (data.length) {
+            items = data;
+            sr = items.length + 1;
+            renderTable();
+        }
+        custNameInput.value = localStorage.getItem("cust_name") || "";
+        custContactInput.value = localStorage.getItem("cust_contact") || "";
+    }
+    
+    // Auto focus movement FIX (No change needed here)
+    itemNameInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            qtyInput.focus();
+            current = 'qty';
+            highlight();
+        }
+         if (selectedIndex !== -1) {
+            selectedIndex = -1;
+            renderTable();
+        }
+    });
+
+    qtyInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            
+            if (qtyInput.value.length === 0 || parseFloat(qtyInput.value) === 0) {
+                 return; 
+            }
+            
+            rateInput.focus();
+            current = 'rate';
+            highlight();
+        }
+    });
+
+    rateInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            
+            if (rateInput.value.length === 0 || parseFloat(rateInput.value) === 0) {
+                 return; 
+            }
+            
+            saveItem();
+            itemNameInput.focus();
+            current = 'qty';
+            highlight();
+        }
+    });
+
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+    window.addEventListener('click', function(e){
+        const sidebar = document.getElementById('mySidebar');
+        const menuBtn = document.querySelector('.menu-btn');
+        
+        if (sidebar.style.width === "250px" && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            closeNav();
+        }
+    });
+        
+    // Service Worker Registration for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+      
+    window.onload = loadFromLocal;
+</script>
+
 </body>
 </html>
