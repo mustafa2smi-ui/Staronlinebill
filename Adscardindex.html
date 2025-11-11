@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Digital Bill Maker - Free Online Bill Creation Webapp</title>
+    <meta name="description" content="Star Digital का 100% फ्री और आसान ऑनलाइन बिल क्रिएशन टूल। तुरंत डिजिटल बिल बनाएं, Qty/Rate/Total कैलकुलेट करें, और PNG इमेज या लिंक के रूप में WhatsApp पर शेयर करें।">
+    <meta name="keywords" content="digital bill maker, free bill app, online bill, star digital bill, instant bill, GST bill app, bill share, invoice maker, billing software, simple bill, फ्री बिल ऐप, डिजिटल बिल बनाएं">
+    <meta name="author" content="Star Digital">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff; /* Star Digital Blue */
+            --secondary-color: #28a745; /* Green for Enter/Update */
+            --dark-bg: #1e1e2d; /* Darker Background */
+            --light-bg: #2b2b40;
+            --text-color: #ffffff;
+            --highlight-color: #ffc107; /* Orange/Yellow highlight */
+            --footer-height: 50px; 
+            --offer-height: 150px; /* New: Height for the offer section */
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-color);
+            padding-bottom: var(--footer-height); 
+            font-size: 14px;
+        }
+        /* --- General Styling --- */
+        .main-header {
+            background: var(--primary-color);
+            padding: 15px 10px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .app-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .header-info {
+            font-size: 0.8em;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 5px;
+        }
+        .menu-btn {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 100;
+        }
+        /* --- Sidebar & Menu --- */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 50;
+            top: 0;
+            left: 0;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 15px 8px 15px 32px; /* Increased padding for easy tapping */
+            text-decoration: none;
+            font-size: 16px;
+            color: var(--text-color);
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid #3b3b4d;
+        }
+        .sidebar a:hover {
+            background-color: #3b3b4d;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+            color: #e74c3c;
+            cursor: pointer; 
+        }
+        /* --- Table/Bill Display --- */
+        .header {
+            display: flex;
+            background: var(--primary-color);
+            font-weight: bold;
+            text-align: center;
+        }
+        .header div {
+            padding: 10px;
+            flex: 1;
+        }
+        #itemList {
+            overflow-y: auto;
+            height: 180px;
+            font-size: 16px;
+            background: var(--light-bg);
+        }
+        .row {
+            display: flex;
+            border-bottom: 1px solid #444;
+            padding: 6px 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .row:hover {
+            background: #3a3a50;
+        }
+        .row div {
+            flex: 1;
+            text-align: center;
+            /* Ensure text wraps correctly */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .row.selected {
+            background: #444;
+            border: 1px solid var(--highlight-color);
+        }
+        .top-inputs {
+            padding: 8px;
+            background: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            border-bottom: 1px solid #444;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px 10px;
+            border: 1px solid #444;
+            background: #3b3b4d;
+            color: var(--text-color);
+            border-radius: 5px;
+            width: calc(100% - 22px); 
+            outline: none;
+            font-size: 14px;
+        }
+        .total-box {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: #333;
+            font-size: 1em;
+            font-weight: bold;
+            border-top: 2px solid var(--highlight-color);
+        }
+        /* --- Numpad and Controls --- */
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 10px;
+        }
+        .numpad button {
+            padding: 15px;
+            font-size: 18px;
+            background: #3b3b4d;
+            color: var(--text-color);
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .numpad button:active {
+            background: var(--highlight-color);
+            color: black;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .side-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+        .side-btns button {
+            padding: 14px;
+            font-size: 16px;
+            border: none;
+            background: var(--secondary-color);
+            color: black;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .side-btns button:hover {
+            background: #218838;
+        }
+        .bottom {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            background: #333;
+        }
+        .bottom button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .input-vertical {
+            display: flex;
+            gap: 5px;
+        }
+        /* --- Footer & Offer Zone --- */
+        .app-footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: var(--footer-height);
+            background: #111;
+            color: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            border-top: 1px solid #444;
+            z-index: 1000;
+        }
+        .update-mode {
+            background-color: #ffc107 !important;
+            color: black !important;
+        }
+
+        /* --- Offer Carousel Styling (New) --- */
+        .offer-zone-title {
+            text-align: center;
+            padding: 8px;
+            background: var(--dark-bg);
+            color: var(--highlight-color);
+            font-size: 1.1em;
+            font-weight: bold;
+            border-top: 1px solid #444;
+        }
+        .offer-carousel {
+            display: flex;
+            overflow-x: scroll;
+            padding: 10px;
+            gap: 10px;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            background: #242436;
+        }
+        .offer-card {
+            min-width: 80vw; /* On mobile, take up most of the screen */
+            max-width: 80vw;
+            height: var(--offer-height);
+            background: var(--light-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            scroll-snap-align: start;
+            flex-shrink: 0;
+            text-decoration: none;
+            color: inherit;
+        }
+        .offer-card:hover {
+            background: #3b3b4d;
+        }
+        .offer-image-container {
+            width: 30%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .offer-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .offer-text {
+            width: 70%;
+            padding-left: 10px;
+        }
+        .offer-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--highlight-color);
+            margin-bottom: 5px;
+        }
+        .offer-desc {
+            font-size: 0.85em;
+            color: #ccc;
+            line-height: 1.3;
+        }
+
+        /* --- Modal Styling (New - for AdSense Pages) --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: var(--dark-bg);
+            margin: 5% auto; 
+            padding: 20px;
+            border: 1px solid var(--primary-color);
+            width: 90%; 
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+        .modal-content h2 {
+            color: var(--highlight-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .modal-content p, .modal-content ul {
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: var(--highlight-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Menu Button -->
+<div class="menu-btn" onclick="openNav()">☰</div>
+
+<!-- Sidebar Menu -->
+<div id="mySidebar" class="sidebar">
+    <span class="closebtn" onclick="closeNav()">×</span>
+    <a href="#" onclick="openPageModal('home'); closeNav();">🏠 Home (Bill Maker)</a>
+    <a href="#" onclick="openPageModal('about'); closeNav();">ℹ️ About Us</a>
+    <a href="#" onclick="openPageModal('privacy'); closeNav();">🔒 Privacy Policy</a>
+    <a href="#" onclick="openPageModal('contact'); closeNav();">📞 Contact</a>
+    <a href="javascript:void(0);">⚙️ Settings (Coming Soon)</a>
+</div>
+
+<!-- Main Header -->
+<div class="main-header">
+    <div class="app-title">Star Digital Online Bill Create Webapp Service</div>
+    <div class="header-info">
+        <div>App Version 1.4</div>
+        <div id="currentDate"></div>
+    </div>
+</div>
+
+<div class="top-inputs">
+    <input type="text" id="custName" placeholder="Customer Name (Optional)" maxlength="15">
+    <input type="text" id="custContact" placeholder="Contact Number (Optional)" 
+           maxlength="10" inputmode="numeric" pattern="\d{0,10}">
+</div>
+
+<div id="billArea">
+    <div class="header">
+        <div>SR</div>
+        <div>ITEM</div>
+        <div>QTY</div>
+        <div>RATE</div>
+        <div>TOTAL</div>
+    </div>
+    <div id="itemList"></div>
+    <div class="total-box">
+        <div><b>Total Qty:</b> <span id="totalQty">0</span></div>
+        <div><b>₹</b> <span id="totalAmt">0</span></div>
+    </div>
+</div>
+
+<div class="top-inputs">
+    <div class="input-vertical">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" maxlength="15">
+        <input type="text" id="qty" placeholder="Qty" readonly inputmode="decimal">
+        <input type="text" id="rate" placeholder="Rate" readonly inputmode="decimal">
+    </div>
+</div>
+
+<div style="display: flex;">
+    <div style="width: 75%;">
+        <div class="numpad">
+            <button onclick="addNum('7')">7</button>
+            <button onclick="addNum('8')">8</button>
+            <button onclick="addNum('9')">9</button>
+            <button onclick="addNum('4')">4</button>
+            <button onclick="addNum('5')">5</button>
+            <button onclick="addNum('6')">6</button>
+            <button onclick="addNum('1')">1</button>
+            <button onclick="addNum('2')">2</button>
+            <button onclick="addNum('3')">3</button>
+            <button onclick="addNum('0')">0</button>
+            <button onclick="addNum('.')">.</button>
+            <button onclick="backspace()">⌫</button>
+        </div>
+    </div>
+    <div class="side-btns" style="width: 25%;">
+        <button onclick="deleteItem()" id="delBtn" disabled>Delete 🗑️</button>
+        <button type="button" onclick="saveItem()" id="enterBtn">Enter ↩️</button>
+        <button onclick="clearTable()">🧹ClearAll</button>
+    </div>
+</div>
+
+<!-- Offer Carousel Section (नया: Affiliate/Offer Zone) -->
+<div class="offer-zone-title">
+    ✨ Aaj Ka Best Offer Zone! (Affiliate)
+</div>
+<div class="offer-carousel">
+    <!-- Card 1: Affiliate Product Link -->
+    <a href="YOUR_AFFILIATE_LINK_1" target="_blank" class="offer-card">
+        <div class="offer-image-container">
+            <!-- Placeholder Image for Affiliate Product -->
+            <img src="https://placehold.co/150x150/007bff/ffffff?text=Product+A" onerror="this.onerror=null;this.src='https://placehold.co/150x150/007bff/ffffff?text=Product+A';" alt="Affiliate Product A">
+        </div>
+        <div class="offer-text">
+            <div class="offer-title">Best Laptop Deals!</div>
+            <div class="offer-desc">अपने बिलिंग/ऑफिस काम के लिए नया लैपटॉप 50% डिस्काउंट पर खरीदें। जल्दी करें!</div>
+        </div>
+    </a>
+    
+    <!-- Card 2: App Promotion/Service -->
+    <a href="YOUR_AFFILIATE_LINK_2" target="_blank" class="offer-card">
+        <div class="offer-image-container">
+            <!-- Placeholder Image for Service -->
+            <img src="https://placehold.co/150x150/28a745/ffffff?text=Service+B" onerror="this.onerror=null;this.src='https://placehold.co/150x150/28a745/ffffff?text=Service+B';" alt="Digital Service B">
+        </div>
+        <div class="offer-text">
+            <div class="offer-title">Free Website Hosting!</div>
+            <div class="offer-desc">अपनी खुद की वेबसाइट सिर्फ ₹99/महीने में होस्ट करें। Star Digital यूज़र्स के लिए विशेष ऑफर!</div>
+        </div>
+    </a>
+
+    <!-- Card 3: Generic Offer -->
+    <a href="YOUR_AFFILIATE_LINK_3" target="_blank" class="offer-card">
+        <div class="offer-image-container">
+            <!-- Placeholder Image for Offer C -->
+            <img src="https://placehold.co/150x150/ffc107/000000?text=Offer+C" onerror="this.onerror=null;this.src='https://placehold.co/150x150/ffc107/000000?text=Offer+C';" alt="Exclusive Offer C">
+        </div>
+        <div class="offer-text">
+            <div class="offer-title">New Smartphones!</div>
+            <div class="offer-desc">लेटेस्ट स्मार्टफोन पर ₹5,000 का कैशबैक! अभी क्लिक करें और ऑफर पाएं।</div>
+        </div>
+    </a>
+</div>
+
+<div class="bottom">
+    <button onclick="downloadImage()">🖼 Save Image</button>
+    <button onclick="shareBill()">📲 Share Bill</button>
+</div>
+
+<div class="app-footer">
+    <span>Aap bhi apne Customer ko digital bill banaye bilkul free me | Developed by Star Digital</span>
+</div>
+
+<!-- Modal for AdSense Required Pages (नया: पेज मॉडुल) -->
+<div id="pageModal" class="modal" onclick="closePageModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="modal-close" onclick="closePageModal()">&times;</span>
+        <div id="modalContentArea">
+            <!-- Content will be injected here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Configuration ---
+    const APP_WEBSITE_URL = window.location.href; 
+    const CUSTOM_SHARE_MSG = "\n\n⭐️ Aap bhi apne Customer ko digital bill banaye bilkul free me! Try it now: "; 
+    
+    // --- Variables and Elements ---
+    let current = 'qty';
+    let sr = 1;
+    let items = [];
+    let selectedIndex = -1; // -1 means No row selected
+    const qtyInput = document.getElementById("qty");
+    const rateInput = document.getElementById("rate");
+    const itemNameInput = document.getElementById("itemName");
+    const custNameInput = document.getElementById("custName");
+    const custContactInput = document.getElementById("custContact");
+    const enterBtn = document.getElementById("enterBtn");
+    const delBtn = document.getElementById("delBtn");
+    const itemListDiv = document.getElementById("itemList"); 
+    
+    // --- Decimal Limit Configuration (From previous request) ---
+    const QTY_MAX_DIGITS = 5;        // Qty के integer part में max 5 digits
+    const QTY_MAX_DECIMALS = 3;      // Qty में max 3 decimal digits
+    const RATE_MAX_DIGITS = 6;       // Rate के integer part में max 6 digits
+    const RATE_MAX_DECIMALS = 3;     // Rate में max 3 decimal digits 
+
+    // Helper function for decimal inputs (Direct Text Input)
+    function limitDecimalInput(el, maxInt, maxDec) {
+      el.addEventListener("input", function () {
+        let v = this.value || "";
+
+        // Sirf digits aur ek hi dot allow
+        v = v.replace(/[^0-9.]/g, "");
+        const firstDot = v.indexOf(".");
+        if (firstDot !== -1) {
+          // Dusre dot hatao
+          v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, "");
+        }
+
+        // Split into integer aur decimal
+        let [intPart, decPart] = v.split(".");
+        intPart = intPart || "";
+
+        // Integer limit
+        if (intPart.length > maxInt) {
+          intPart = intPart.slice(0, maxInt);
+        }
+
+        // Decimal limit
+        if (typeof decPart !== "undefined") {
+          decPart = decPart.slice(0, maxDec);
+          v = intPart + "." + decPart;
+        } else {
+          v = intPart;
+        }
+
+        // Agar sirf dot likha gaya ho to "0." bana do
+        if (v === ".") v = "0.";
+
+        this.value = v;
+      });
+    }
+
+    // Apply limits
+    limitDecimalInput(qtyInput, QTY_MAX_DIGITS, QTY_MAX_DECIMALS);
+    limitDecimalInput(rateInput, RATE_MAX_DIGITS, RATE_MAX_DECIMALS);
+    
+    // XSS Protection Function: HTML Special characters को एस्केप करता है।
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.toString().replace(/&/g, "&amp;")
+                     .replace(/</g, "&lt;")
+                     .replace(/>/g, "&gt;")
+                     .replace(/"/g, "&quot;")
+                     .replace(/'/g, "&#039;");
+    }
+
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
+
+    qtyInput.setAttribute("readonly", true);
+    rateInput.setAttribute("readonly", true);
+
+    qtyInput.onclick = () => { current = 'qty'; highlight(); };
+    rateInput.onclick = () => { current = 'rate'; highlight(); };
+
+    function highlight() {
+        qtyInput.style.border = current === 'qty' ? "2px solid var(--highlight-color)" : "1px solid #444";
+        rateInput.style.border = current === 'rate' ? "2px solid var(--highlight-color)" : "1px solid #444";
+    }
+    highlight();
+
+    // UPDATED addNum function with immediate limit checking
+    function addNum(n) {
+        const el = current === 'qty' ? qtyInput : rateInput;
+        const maxInt = current === 'qty' ? QTY_MAX_DIGITS : RATE_MAX_DIGITS;
+        const maxDec = current === 'qty' ? QTY_MAX_DECIMALS : RATE_MAX_DECIMALS;
+        let v = el.value;
+
+        // 1. Decimal Point Limit
+        if (n === '.') {
+            if (v.includes('.')) return;
+            if (v === '') {
+                el.value = '0.';
+                return;
+            }
+        }
+
+        // 2. Add the new number
+        let newValue = v + n;
+
+        // 3. Check Limits
+        const parts = newValue.split('.');
+        let intPart = parts[0] || '';
+        let decPart = parts[1];
+
+        // Integer part limit check
+        if (intPart.length > maxInt) {
+            return; 
+        }
+
+        // Decimal part limit check
+        if (decPart && decPart.length > maxDec) {
+            return; 
+        }
+
+        // 4. Update the value
+        el.value = newValue;
+    }
+    
+    function backspace() {
+        let el = current === 'qty' ? qtyInput : rateInput;
+        el.value = el.value.slice(0, -1);
+    }
+
+    function saveItem() {
+        let qty = parseFloat(qtyInput.value) || 0;
+        let rate = parseFloat(rateInput.value) || 0;
+        let name = itemNameInput.value || "-";
+
+        // Validation 
+        if (qty <= 0 || rate <= 0) {
+             current = (qty <= 0) ? 'qty' : 'rate';
+             highlight();
+             return;
+        }
+
+        let total = qty * rate;
+
+        if (selectedIndex >= 0) {
+            // Update the existing row
+            items[selectedIndex].name = name;
+            items[selectedIndex].qty = qty;
+            items[selectedIndex].rate = rate;
+            items[selectedIndex].total = total;
+            
+            // Reset selection and button text
+            selectedIndex = -1;
+            enterBtn.innerText = "Enter ↩️";
+            enterBtn.classList.remove("update-mode");
+            
+        } else {
+            // NEW ITEM LOGIC: Add new item
+            items.push({ sr: sr++, name, qty, rate, total });
+        }
+        
+        renderTable();
+        clearInput();
+        saveToLocal();
+    }
+
+    function renderTable() {
+        const list = itemListDiv;
+        list.innerHTML = "";
+        let totalQty = 0, totalAmt = 0;
+        
+        items.forEach((item, index) => {
+            totalQty += item.qty;
+            totalAmt += item.total;
+            
+            let row = document.createElement("div");
+            row.className = "row" + (selectedIndex === index ? " selected" : "");
+            row.onclick = () => selectRow(index);
+
+            // FIX: Qty display is also formatted to QTY_MAX_DECIMALS
+            row.innerHTML = `
+                <div>${item.sr}</div>
+                <div>${escapeHtml(item.name)}</div>
+                <div>${item.qty.toFixed(QTY_MAX_DECIMALS)}</div>
+                <div>${item.rate.toFixed(RATE_MAX_DECIMALS)}</div>
+                <div>₹${item.total.toFixed(2)}</div>
+            `;
+            
+            list.appendChild(row);
+        });
+        
+        document.getElementById("totalQty").innerText = totalQty.toFixed(QTY_MAX_DECIMALS);
+        document.getElementById("totalAmt").innerText = totalAmt.toFixed(2);
+        
+        // Enable/disable delete button based on selection
+        delBtn.disabled = selectedIndex < 0;
+
+        // Auto Scroll to New Item Fix
+        if (items.length > 0) {
+            list.scrollTop = list.scrollHeight;
+        }
+    }
+
+    function clearInput() {
+        qtyInput.value = "";
+        rateInput.value = "";
+        itemNameInput.value = "";
+        selectedIndex = -1;
+        current = 'qty';
+        highlight();
+        
+        // Reset button text
+        enterBtn.innerText = "Enter ↩️";
+        enterBtn.classList.remove("update-mode");
+        
+        renderTable(); 
+    }
+    
+    // Custom Modal/Confirmation instead of native alert/confirm
+    function showCustomConfirmation(message, onConfirm, onCancel) {
+        const modal = document.getElementById('pageModal');
+        const contentArea = document.getElementById('modalContentArea');
+        
+        contentArea.innerHTML = `
+            <h2>⚠️ Confirm Action</h2>
+            <p>${message}</p>
+            <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button onclick="document.getElementById('pageModal').style.display='none'; ${onCancel ? 'onCancel()' : ''}" 
+                        style="background: #e74c3c; color: white; padding: 10px 15px; border: none; border-radius: 5px;">
+                    Cancel
+                </button>
+                <button onclick="document.getElementById('pageModal').style.display='none'; onConfirm()" 
+                        style="background: var(--secondary-color); color: white; padding: 10px 15px; border: none; border-radius: 5px;">
+                    Confirm
+                </button>
+            </div>
+        `;
+        modal.style.display = 'block';
+    }
+
+    function clearTable() {
+        showCustomConfirmation(
+            "क्या आप सुनिश्चित हैं कि आप बिल की सभी जानकारी (टेबल, कस्टमर इनपुट और लोकल स्टोरेज) हटाना चाहते हैं?",
+            () => { // onConfirm
+                items = [];
+                sr = 1;
+                
+                // Clear all inputs
+                clearInput();
+                custNameInput.value = ""; 
+                custContactInput.value = "";
+                
+                renderTable();
+                
+                // Clear local storage
+                localStorage.removeItem("bill_items");
+                localStorage.removeItem("cust_name");
+                localStorage.removeItem("cust_contact");
+                
+                // Show a brief success message
+                showCustomMessage("सफलता!", "टेबल और सभी इनपुट सफलतापूर्वक क्लियर हो गए!", 'var(--secondary-color)');
+            }
+        );
+    }
+    
+    function showCustomMessage(title, message, color) {
+        const modal = document.getElementById('pageModal');
+        const contentArea = document.getElementById('modalContentArea');
+        
+        contentArea.innerHTML = `
+            <h2 style="color: ${color};">${title}</h2>
+            <p>${message}</p>
+            <div style="display:flex; justify-content: flex-end; margin-top: 20px;">
+                <button onclick="document.getElementById('pageModal').style.display='none';" 
+                        style="background: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: 5px;">
+                    OK
+                </button>
+            </div>
+        `;
+        modal.style.display = 'block';
+    }
+    
+    function selectRow(index) {
+        if (selectedIndex === index) {
+            clearInput(); // Deselect if clicking the same row
+            return;
+        }
+        
+        selectedIndex = index;
+        let item = items[index];
+        
+        itemNameInput.value = item.name;
+        qtyInput.value = item.qty;
+        rateInput.value = item.rate;
+        
+        // Update button to show update mode
+        enterBtn.innerText = "Update ✅";
+        enterBtn.classList.add("update-mode");
+        
+        current = 'qty'; 
+        highlight();
+        renderTable();
+    }
+
+    function deleteItem() {
+        if (selectedIndex >= 0) {
+            showCustomConfirmation(
+                "क्या आप इस आइटम को हटाना चाहते हैं?",
+                () => { // onConfirm
+                    items.splice(selectedIndex, 1);
+                    
+                    // Reassign serial numbers
+                    sr = 1;
+                    items.forEach(i => i.sr = sr++);
+                    
+                    selectedIndex = -1;
+                    renderTable();
+                    saveToLocal();
+                    clearInput();
+                }
+            );
+        } else {
+            showCustomMessage("चुनें", "कृपया डिलीट करने के लिए एक आइटम चुनें।", '#ffc107');
+        }
+    }
+
+    // HTML2Canvas Pre-processing Logic (Unchanged)
+    function processBillCapture(action) {
+        const bill = document.getElementById("billArea");
+        
+        const originalHeight = itemListDiv.style.height;
+        const originalOverflow = itemListDiv.style.overflowY;
+
+        itemListDiv.style.height = 'auto';
+        itemListDiv.style.overflowY = 'visible';
+
+        let headerText = "Star Digital Online Bill Create Webapp Service\nDate: " + document.getElementById('currentDate').innerText;
+        if(custNameInput.value) {
+            headerText += "\nCustomer: " + custNameInput.value;
+        }
+        if(custContactInput.value) {
+            headerText += "\nContact: " + custContactInput.value;
+        }
+
+        const tempHeader = document.createElement('div');
+        tempHeader.style.cssText = 'padding: 10px; background: #3b3b4d; color: white; white-space: pre-line; font-size: 14px; text-align: center;';
+        tempHeader.innerHTML = headerText.replace(/\n/g, '<br>');
+
+        bill.prepend(tempHeader); 
+
+        html2canvas(bill, { scale: 2 }).then(canvas => {
+            bill.removeChild(tempHeader);
+            itemListDiv.style.height = originalHeight;
+            itemListDiv.style.overflowY = originalOverflow;
+
+            if (action === 'download') {
+                let link = document.createElement("a");
+                let now = new Date();
+                let timestamp = now.toLocaleDateString().replace(/\//g, '-') + "_" + now.toLocaleTimeString().replace(/:/g, '-');
+                link.download = (custNameInput.value || "bill") + "_" + timestamp + ".png";
+                link.href = canvas.toDataURL();
+                link.click();
+                showCustomMessage("सफलता!", "बिल इमेज सफलतापूर्वक सेव हो गई।", 'var(--secondary-color)');
+            } else if (action === 'share') {
+                const finalShareText = headerText + CUSTOM_SHARE_MSG + APP_WEBSITE_URL;
+
+                canvas.toBlob(function(blob) {
+                    if (navigator.share) {
+                        const file = new File([blob], "bill.png", { type: 'image/png' });
+                        navigator.share({
+                            title: 'Star Digital Bill',
+                            text: finalShareText,
+                            files: [file],
+                        }).catch((error) => console.log('Error sharing', error));
+                    } else {
+                        showCustomMessage("शेयर नहीं हुआ", "आपका ब्राउज़र Share API को सपोर्ट नहीं करता है। इमेज डाउनलोड हो जाएगी।", '#ffc107');
+                        let link = document.createElement("a");
+                        let now = new Date();
+                        let timestamp = now.toLocaleDateString().replace(/\//g, '-') + "_" + now.toLocaleTimeString().replace(/:/g, '-');
+                        link.download = (custNameInput.value || "bill") + "_" + timestamp + ".png";
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    }
+                }, 'image/png');
+            }
+        });
+    }
+
+    function downloadImage() {
+        processBillCapture('download');
+    }
+
+    function shareBill() {
+        processBillCapture('share');
+    }
+
+    function saveToLocal() {
+        localStorage.setItem("bill_items", JSON.stringify(items));
+        localStorage.setItem("cust_name", custNameInput.value);
+        localStorage.setItem("cust_contact", custContactInput.value);
+    }
+
+    function loadFromLocal() {
+        const data = JSON.parse(localStorage.getItem("bill_items") || "[]");
+        if (data.length) {
+            items = data;
+            sr = items.length + 1;
+            renderTable();
+        }
+        custNameInput.value = localStorage.getItem("cust_name") || "";
+        custContactInput.value = localStorage.getItem("cust_contact") || "";
+    }
+    
+    // Auto focus movement (Unchanged)
+    itemNameInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            qtyInput.focus();
+            current = 'qty';
+            highlight();
+        }
+    });
+
+    qtyInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            
+            if (qtyInput.value.length === 0 || parseFloat(qtyInput.value) === 0) {
+                 return; 
+            }
+            
+            rateInput.focus();
+            current = 'rate';
+            highlight();
+        }
+    });
+
+    rateInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            
+            if (rateInput.value.length === 0 || parseFloat(rateInput.value) === 0) {
+                 return; 
+            }
+            
+            saveItem();
+            itemNameInput.focus();
+            current = 'qty';
+            highlight();
+        }
+    });
+
+    // --- Menu Functions (Unchanged) ---
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+    
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+    window.addEventListener('click', function(e){
+        const sidebar = document.getElementById('mySidebar');
+        const menuBtn = document.querySelector('.menu-btn');
+        
+        if (sidebar.style.width === "250px" && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            closeNav();
+        }
+    });
+        
+    // Service Worker Registration for PWA (Unchanged)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+
+    // --- AdSense Page Functions (नया) ---
+    function getPageContent(page) {
+        const websiteName = "Star Digital Bill Maker";
+        const contactEmail = "support@stardigital.com";
+        const date = "10th November 2025";
+
+        switch(page) {
+            case 'home':
+                // For Home, simply hide the modal if it was accidentally opened
+                closePageModal();
+                return;
+            case 'privacy':
+                return `
+                    <h2>🔒 Privacy Policy (गोपनीयता नीति)</h2>
+                    <p><strong>लागू तिथि:</strong> ${date}</p>
+                    <p>${websiteName} ("हम," "हमारा") आपका स्वागत करता है। हम आपकी गोपनीयता को गंभीरता से लेते हैं। यह नीति बताती है कि हम आपकी जानकारी कैसे एकत्र, उपयोग और सुरक्षित रखते हैं।</p>
+                    
+                    <h3>सूचना संग्रह</h3>
+                    <p>यह वेब एप्लिकेशन क्लाइंट-साइड (आपके ब्राउज़र पर) चलता है। हम कोई भी व्यक्तिगत या बिलिंग डेटा अपने सर्वर पर स्टोर नहीं करते हैं।</p>
+                    <ul>
+                        <li><strong>बिल डेटा:</strong> आपके द्वारा बनाए गए सभी बिल आइटम (Qty, Rate, Item Name) आपके डिवाइस के <strong>Local Storage</strong> में अस्थायी रूप से सहेजे जाते हैं ताकि आप ऐप बंद करने के बाद भी उन्हें एक्सेस कर सकें।</li>
+                        <li><strong>कस्टमर जानकारी:</strong> कस्टमर का नाम और संपर्क नंबर भी Local Storage में सेव होता है।</li>
+                        <li><strong>ऑनलाइन शेयरिंग:</strong> 'Share Bill' बटन उपयोग करने पर, बिल की एक PNG इमेज आपके डिवाइस में बनती है जिसे आप सीधे WhatsApp या अन्य ऐप्स पर साझा करते हैं। इस प्रक्रिया में हमारा कोई सर्वर शामिल नहीं होता है।</li>
+                    </ul>
+
+                    <h3>Google AdSense</h3>
+                    <p>हम Google AdSense का उपयोग करते हैं, जो विज्ञापनों को प्रदर्शित करने के लिए कुकीज़ (Cookies) का उपयोग करता है। AdSense आपकी रुचि के विज्ञापनों को दिखाने के लिए जानकारी एकत्र कर सकता है, लेकिन इसका हमारे बिलिंग डेटा से कोई संबंध नहीं है।</p>
+                    
+                    <h3>Contact Us</h3>
+                    <p>अगर आपको हमारी गोपनीयता नीति के बारे में कोई सवाल है, तो कृपया हमसे ${contactEmail} पर संपर्क करें।</p>
+                `;
+            case 'about':
+                return `
+                    <h2>ℹ️ About Us (हमारे बारे में)</h2>
+                    <p>${websiteName} Star Digital द्वारा विकसित एक 100% फ्री, ऑनलाइन बिल क्रिएशन वेब एप्लिकेशन है। हमारा लक्ष्य छोटे व्यवसायों और दुकानदारों को बिना किसी खर्च के तुरंत डिजिटल बिल बनाने में मदद करना है।</p>
+                    
+                    <h3>हमारा मिशन</h3>
+                    <p>भारत में डिजिटल लेनदेन को बढ़ावा देना और व्यापारियों के लिए बिलिंग प्रक्रिया को आसान बनाना। यह ऐप ऑफ़लाइन काम करने के लिए PWA (Progressive Web App) तकनीक का उपयोग करता है और आपके डेटा की सुरक्षा के लिए सभी जानकारी लोकल स्टोरेज में रखता है।</p>
+
+                    <h3>विशेषताएं:</h3>
+                    <ul>
+                        <li>तुरंत Qty और Rate कैलकुलेशन।</li>
+                        <li>डेसीमल और डिजिट सीमा के साथ सुरक्षित इनपुट।</li>
+                        <li>PNG इमेज के रूप में बिल सेव और शेयर करने की सुविधा।</li>
+                        <li>सरल, मोबाइल-फर्स्ट इंटरफ़ेस।</li>
+                    </ul>
+                `;
+            case 'contact':
+                return `
+                    <h2>📞 Contact (संपर्क करें)</h2>
+                    <p>हमसे संपर्क करने के लिए धन्यवाद। यदि आपके पास कोई सवाल, सुझाव, या तकनीकी समस्या है, तो आप हमें नीचे दिए गए माध्यमों से संपर्क कर सकते हैं।</p>
+                    
+                    <h3>तकनीकी सहायता और सामान्य पूछताछ</h3>
+                    <p><strong>ईमेल:</strong> <a href="mailto:${contactEmail}" style="color:var(--highlight-color);">${contactEmail}</a></p>
+                    
+                    <h3>पता (केवल पत्राचार के लिए)</h3>
+                    <p>Star Digital HQ<br>
+                    [आपका पता, शहर, पिन कोड]<br>
+                    भारत</p>
+
+                    <p>हम 24-48 घंटों के भीतर जवाब देने की पूरी कोशिश करेंगे।</p>
+                `;
+            default:
+                return '<h2>Page Not Found</h2><p>The requested content is not available.</p>';
+        }
+    }
+
+    function openPageModal(page) {
+        const content = getPageContent(page);
+        if (content) {
+            document.getElementById('modalContentArea').innerHTML = content;
+            document.getElementById('pageModal').style.display = 'block';
+        }
+    }
+
+    function closePageModal(event) {
+        // Only close if click is on the background or close button, not on modal content
+        if (event && event.target.id === 'pageModal') {
+             document.getElementById('pageModal').style.display = 'none';
+        } else if (!event) {
+             document.getElementById('pageModal').style.display = 'none';
+        }
+    }
+        
+    window.onload = loadFromLocal;
+</script>
+
+</body>
+</html>
+
