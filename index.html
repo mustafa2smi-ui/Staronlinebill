@@ -424,6 +424,7 @@ limitDecimalInput(rateInput, RATE_MAX_DIGITS, RATE_MAX_DECIMALS);
         el.value += n;
     }
 */
+    /*
     function addNum(n) {
     const el = current === 'qty' ? qtyInput : rateInput;
 
@@ -441,6 +442,48 @@ limitDecimalInput(rateInput, RATE_MAX_DIGITS, RATE_MAX_DECIMALS);
 
     // Do NOT reset selectedIndex here (that was causing disappearance)
 }
+    */
+        function addNum(n) {
+    const el = current === 'qty' ? qtyInput : rateInput;
+    const maxInt = current === 'qty' ? QTY_MAX_DIGITS : RATE_MAX_DIGITS;
+    const maxDec = current === 'qty' ? QTY_MAX_DECIMALS : RATE_MAX_DECIMALS;
+    let v = el.value;
+
+    // 1. Decimal Point Limit
+    if (n === '.') {
+        // अगर पहले से '.' है तो कुछ न करें
+        if (v.includes('.')) return;
+        // अगर खाली है और '.' डाला तो "0." बना दें
+        if (v === '') {
+            el.value = '0.';
+            return;
+        }
+    }
+
+    // 2. Add the new number
+    let newValue = v + n;
+
+    // 3. Check Limits
+    const parts = newValue.split('.');
+    let intPart = parts[0] || '';
+    let decPart = parts[1];
+
+    // Integer part limit check
+    if (intPart.length > maxInt) {
+        // इंटीजर पार्ट लिमिट से बाहर
+        return; 
+    }
+
+    // Decimal part limit check
+    if (decPart && decPart.length > maxDec) {
+        // डेसीमल पार्ट लिमिट से बाहर
+        return; 
+    }
+
+    // 4. Update the value
+    el.value = newValue;
+}
+
     function backspace() {
         let el = current === 'qty' ? qtyInput : rateInput;
         el.value = el.value.slice(0, -1);
