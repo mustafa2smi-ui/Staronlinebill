@@ -726,7 +726,7 @@
         
         renderTable(); 
     }
-    
+    /*
     // Custom Modal/Confirmation instead of native alert/confirm
     function showCustomConfirmation(message, onConfirm, onCancel) {
         const modal = document.getElementById('pageModal');
@@ -748,6 +748,36 @@
         `;
         modal.style.display = 'block';
     }
+*/
+    // Custom Modal/Confirmation instead of native alert/confirm
+function showCustomConfirmation(message, onConfirm) { 
+    // onCancel अब ज़रूरी नहीं है, क्योंकि कैंसिल बटन सिर्फ़ मॉडल बंद करेगा।
+    const modal = document.getElementById('pageModal');
+    const contentArea = document.getElementById('modalContentArea');
+    
+    // onConfirm फंक्शन को ग्लोबल स्कोप में अस्थायी रूप से जोड़ना
+    // ताकि इसे बटन के onclick इवेंट से कॉल किया जा सके।
+    window._tempOnConfirm = () => {
+        onConfirm();
+        delete window._tempOnConfirm; // काम पूरा होने के बाद हटा दें
+    };
+    
+    contentArea.innerHTML = `
+        <h2>⚠️ Confirm Action</h2>
+        <p>${message}</p>
+        <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button onclick="document.getElementById('pageModal').style.display='none'; delete window._tempOnConfirm;" 
+                    style="background: #e74c3c; color: white; padding: 10px 15px; border: none; border-radius: 5px;">
+                Cancel
+            </button>
+            <button onclick="document.getElementById('pageModal').style.display='none'; window._tempOnConfirm();" 
+                    style="background: var(--secondary-color); color: white; padding: 10px 15px; border: none; border-radius: 5px;">
+                Confirm
+            </button>
+        </div>
+    `;
+    modal.style.display = 'block';
+}
 
     function clearTable() {
         showCustomConfirmation(
