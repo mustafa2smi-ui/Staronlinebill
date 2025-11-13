@@ -5,7 +5,6 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/service-worker.js',
   // अपने CSS और JS फ़ाइलों को यहां जोड़ें
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', // External JS
   // यदि आप images फ़ोल्डर का उपयोग कर रहे हैं:
