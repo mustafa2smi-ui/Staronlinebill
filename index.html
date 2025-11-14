@@ -1021,7 +1021,7 @@ function showCustomConfirmation(message, onConfirm) {
       });
     }
 */
-    
+    /*
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
@@ -1029,6 +1029,7 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('Service Worker Error:', err));
   });
 }  
+    */
     // --- AdSense Page Functions (Updated with Terms & Conditions) ---
     function getPageContent(page) {
         const websiteName = "Star Digital Bill Maker";
@@ -1130,7 +1131,29 @@ if ('serviceWorker' in navigator) {
         
     window.onload = loadFromLocal;
 </script>
+  <script>
+// (आपका मौजूदा JavaScript कोड यहाँ है)
+// ...
 
+// ------------------------------------------------------------------
+// ✅ Service Worker Registration (PWA Offline Setup)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // 🔴 सुनिश्चित करें कि पाथ सही हो (e.g., /micnews123/service-worker.js)
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => {
+        console.log('Service Worker Registered successfully: ', reg.scope);
+      })
+      .catch(err => {
+        console.log('Service Worker registration failed: ', err);
+      });
+  });
+}
+// ------------------------------------------------------------------
+
+// (आपका Dynamic Meta Tags का कोड यहाँ है)
+// ...
+  </script>
 </body>
 </html>
 
