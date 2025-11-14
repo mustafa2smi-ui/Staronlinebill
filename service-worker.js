@@ -1,10 +1,10 @@
 const CACHE_NAME = 'star-bill-app-v1.4';
 
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './saral.jpg',
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/saral.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
 ];
 
