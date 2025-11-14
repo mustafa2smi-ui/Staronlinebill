@@ -1008,7 +1008,7 @@ function showCustomConfirmation(message, onConfirm) {
             closeNav();
         }
     });
-        
+        /*
     // Service Worker Registration for PWA (Unchanged)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -1020,7 +1020,15 @@ function showCustomConfirmation(message, onConfirm) {
           });
       });
     }
-
+*/
+    
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('Service Worker Registered:', reg))
+      .catch(err => console.log('Service Worker Error:', err));
+  });
+}  
     // --- AdSense Page Functions (Updated with Terms & Conditions) ---
     function getPageContent(page) {
         const websiteName = "Star Digital Bill Maker";
