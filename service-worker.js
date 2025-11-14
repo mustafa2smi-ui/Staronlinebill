@@ -8,8 +8,8 @@ const urlsToCache = [
   // अपने CSS और JS फ़ाइलों को यहां जोड़ें
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', // External JS
   // यदि आप images फ़ोल्डर का उपयोग कर रहे हैं:
-  '/images/icon-192.png',
-  '/images/icon-512.png'
+
+  'saral.jpeg'
 ];
 
 // 1. सर्विस वर्कर इंस्टॉल करना और फ़ाइलें कैश करना
