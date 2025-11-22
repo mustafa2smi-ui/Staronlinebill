@@ -4,8 +4,7 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/saral.jpg',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
+  '/saral.jpg'
 ]
 // Install event
 self.addEventListener('install', event => {
@@ -52,3 +51,4 @@ self.addEventListener('activate', event => {
     })
   );
 });
+/*https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js*/
